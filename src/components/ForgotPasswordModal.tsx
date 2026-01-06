@@ -138,7 +138,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
         {step === 'email' && (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-cream mb-2 font-lora">
+              <label className="block text-sm font-medium text-black mb-2 font-lora">
                 Email Address
               </label>
               <div className="relative">
@@ -149,7 +149,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-cream placeholder-cream-dark/50 transition-all font-lora"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-cream placeholder-black transition-all font-lora"
                   placeholder="you@example.com"
                   required
                 />

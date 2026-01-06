@@ -202,7 +202,8 @@ const handleSubmit = async (e: React.FormEvent) => {
     }
   };
 
-  const togglePublish = async (book: BookType) => {
+  const togglePublish = async (book: BookType) =>
+     {
     try {
       const { error } = await supabase
         .from('books')

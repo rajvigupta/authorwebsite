@@ -21,19 +21,20 @@ export function Footer() {
           {/* Right side - Developer credits */}
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm text-text-muted font-lora">
-              <Code2 size={16} className="text-primary" />
+              <Code2 size={20} className="text-primary" />
               <span>Developed with</span>
-              <Heart size={14} className="text-accent-maroon fill-accent-maroon animate-pulse" />
+              <Heart size={25
+              } className="text-accent-maroon fill-accent-maroon animate-pulse" />
               <span>by</span>
               <span className="font-cinzel font-semibold text-primary">
-                RAJVI
+               Rajvi
               </span>
             </div>
 
             {/* Social icons */}
             <div className="flex items-center gap-2 pl-3 border-l border-accent-maroon/30">
               <a
-                href="https://github.com/yourusername"
+                href="https://github.com/rajvigupta"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-all border border-transparent hover:border-primary/30"
@@ -42,7 +43,7 @@ export function Footer() {
                 <Github size={18} />
               </a>
               <a
-                href="https://linkedin.com/in/yourusername"
+                href="https://www.linkedin.com/in/rajvi-gupta-555464315/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-all border border-transparent hover:border-primary/30"

@@ -34,14 +34,47 @@ Deno.serve(async (req: Request) => {
       throw new Error('Missing chapterId or amount');
     }
 
-    // ───────────── VERIFY CHAPTER ─────────────
+    // ✅ CHECK FOR EXISTING COMPLETED PURCHASE
+    const { data: existingPurchase } = await supabase
+      .from('purchases')
+      .select('id, payment_status')
+      .eq('user_id', user.id)
+      .eq('chapter_id', chapterId)
+      .eq('payment_status', 'completed')
+      .maybeSingle();
+
+    if (existingPurchase) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Chapter already purchased',
+          alreadyOwned: true 
+        }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
+    // ───────────── VERIFY CHAPTER EXISTS ─────────────
     const { data: chapter } = await supabase
       .from('chapters')
-      .select('id')
+      .select('id, price')
       .eq('id', chapterId)
       .single();
 
     if (!chapter) throw new Error('Chapter not found');
+
+    // ✅ DELETE ANY PENDING/FAILED PURCHASES FOR THIS CHAPTER
+    await supabase
+      .from('purchases')
+      .delete()
+      .eq('user_id', user.id)
+      .eq('chapter_id', chapterId)
+      .in('payment_status', ['pending', 'failed']);
 
     // ───────────── CREATE RAZORPAY ORDER ─────────────
     const authString = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
@@ -57,13 +90,10 @@ Deno.serve(async (req: Request) => {
         body: JSON.stringify({
           amount: Math.round(amount * 100), // INR → paise
           currency: 'INR',
-        receipt: `ch_${chapterId.slice(0, 8)}_${user.id.slice(0, 8)}`,
-
+          receipt: `ch_${chapterId.slice(0, 8)}_${Date.now()}`, // ✅ Add timestamp for uniqueness
         }),
       }
     );
-
-    
 
     if (!razorpayResponse.ok) {
       const errText = await razorpayResponse.text();
@@ -84,7 +114,10 @@ Deno.serve(async (req: Request) => {
         payment_status: 'pending',
       });
 
-    if (insertError) throw insertError;
+    if (insertError) {
+      console.error('Insert error:', insertError);
+      throw new Error(`Failed to create purchase record: ${insertError.message}`);
+    }
 
     return new Response(
       JSON.stringify({
@@ -99,7 +132,7 @@ Deno.serve(async (req: Request) => {
       }
     );
   } catch (err) {
-    console.error(err);
+    console.error('Create order error:', err);
     return new Response(
       JSON.stringify({ error: (err as Error).message }),
       {

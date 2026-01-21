@@ -1,7 +1,5 @@
 // @deno-types="npm:@supabase/supabase-js@2"
 import { createClient } from 'npm:@supabase/supabase-js@2';
-// @deno-types="npm:razorpay@2"
-import Razorpay from 'npm:razorpay@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -48,6 +46,32 @@ Deno.serve(async (req: Request) => {
       throw new Error('Invalid amount');
     }
 
+    // ✅ CHECK FOR EXISTING PURCHASES
+    const { data: existingPurchases } = await supabase
+      .from('purchases')
+      .select('chapter_id')
+      .eq('user_id', user.id)
+      .in('chapter_id', chapterIds)
+      .eq('payment_status', 'completed');
+
+    if (existingPurchases && existingPurchases.length > 0) {
+      const alreadyOwnedIds = existingPurchases.map(p => p.chapter_id);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Some chapters are already purchased',
+          alreadyOwnedIds,
+          alreadyOwned: true
+        }),
+        {
+          status: 400,
+          headers: {
+            ...corsHeaders,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+    }
+
     // Verify all chapters exist and belong to the book
     const { data: chapters, error: chaptersError } = await supabase
       .from('chapters')
@@ -70,29 +94,37 @@ Deno.serve(async (req: Request) => {
       throw new Error(`Amount mismatch: expected ${calculatedTotal}, got ${totalAmount}`);
     }
 
-    // Check for existing purchases
-    const { data: existingPurchases } = await supabase
+    // ✅ DELETE ANY PENDING/FAILED BULK PURCHASES FOR THESE CHAPTERS
+    await supabase
       .from('purchases')
-      .select('chapter_id')
+      .delete()
       .eq('user_id', user.id)
       .in('chapter_id', chapterIds)
-      .eq('payment_status', 'completed');
-
-    if (existingPurchases && existingPurchases.length > 0) {
-      throw new Error('You have already purchased some of these chapters');
-    }
+      .in('payment_status', ['pending', 'failed']);
 
     // Create Razorpay order
-    const razorpay = new Razorpay({
-      key_id: razorpayKeyId,
-      key_secret: razorpayKeySecret,
+    const authString = btoa(`${razorpayKeyId}:${razorpayKeySecret}`);
+
+    const razorpayResponse = await fetch('https://api.razorpay.com/v1/orders', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Basic ${authString}`,
+      },
+      body: JSON.stringify({
+        amount: Math.round(totalAmount * 100),
+        currency: 'INR',
+        receipt: `bulk_${bookId.slice(0, 8)}_${Date.now()}`, // ✅ Add timestamp
+      }),
     });
 
-    const order = await razorpay.orders.create({
-      amount: Math.round(totalAmount * 100),
-      currency: 'INR',
-      receipt: `bulk_${bookId}_${user.id}_${Date.now()}`,
-    });
+    if (!razorpayResponse.ok) {
+      const errText = await razorpayResponse.text();
+      console.error('Razorpay error:', errText);
+      throw new Error('Failed to create Razorpay order');
+    }
+
+    const order = await razorpayResponse.json();
 
     // Insert pending purchases for all chapters
     const purchaseRecords = chapterIds.map((chapterId: string) => {
@@ -111,7 +143,8 @@ Deno.serve(async (req: Request) => {
       .insert(purchaseRecords);
 
     if (insertError) {
-      throw insertError;
+      console.error('Insert error:', insertError);
+      throw new Error(`Failed to create purchase records: ${insertError.message}`);
     }
 
     return new Response(

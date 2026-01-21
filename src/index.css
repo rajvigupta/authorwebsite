@@ -398,3 +398,266 @@ h2, h3, h4, h5, h6 {
   font-weight: 700;
   letter-spacing: 0.03em;
 }
+
+/* ============================================================================
+   READING THEMES - Properly Scoped to Avoid Breaking Auth Modal
+   ============================================================================ */
+
+/* ===== GOTHIC GREEN THEME (Default) ===== */
+/* Bold text must be GOLD, not black */
+strong,
+.text-primary strong,
+strong.text-primary,
+.font-bold {
+  color: var(--gold-bright) !important;
+  font-weight: 700 !important;
+}
+
+/* Headings remain gold */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--gold-bright) !important;
+}
+
+/* ===== LIGHT THEME (Classic White) - SCOPED ===== */
+.reading-theme-light {
+  background: #faf9f7 !important;
+}
+
+/* Only affect content areas, not modals */
+.reading-theme-light .prose,
+.reading-theme-light .max-w-4xl {
+  background: #faf9f7 !important;
+}
+
+.reading-theme-light .bg-gothic-darkest,
+.reading-theme-light .bg-gothic-dark,
+.reading-theme-light .bg-gothic-mid {
+  background: #faf9f7 !important;
+}
+
+.reading-theme-light .bg-gothic-dark\/95 {
+  background: rgba(250, 249, 247, 0.95) !important;
+}
+
+/* Scoped text colors - only in prose */
+.reading-theme-light .prose .text-text-light,
+.reading-theme-light .prose .text-text-muted,
+.reading-theme-light .prose p,
+.reading-theme-light .prose span {
+  color: #1f2937 !important;
+}
+
+/* Bold text in light theme */
+.reading-theme-light .prose strong,
+.reading-theme-light .prose .font-bold {
+  color: #000000 !important;
+  font-weight: 700 !important;
+}
+
+/* Headings in light theme */
+.reading-theme-light .prose h1,
+.reading-theme-light .prose h2,
+.reading-theme-light .prose h3,
+.reading-theme-light .prose h4 {
+  color: #1f2937 !important;
+}
+
+.reading-theme-light .prose em {
+  color: #374151 !important;
+}
+
+.reading-theme-light .border-accent-maroon\/20,
+.reading-theme-light .border-accent-maroon\/30 {
+  border-color: #e5e7eb !important;
+}
+
+/* ===== DARK THEME (Dark Mode) - SCOPED ===== */
+.reading-theme-dark {
+  background: #0a0a0a !important;
+}
+
+.reading-theme-dark .bg-gothic-darkest,
+.reading-theme-dark .bg-gothic-dark,
+.reading-theme-dark .bg-gothic-mid {
+  background: #0a0a0a !important;
+}
+
+.reading-theme-dark .bg-gothic-dark\/95 {
+  background: rgba(10, 10, 10, 0.95) !important;
+}
+
+/* Scoped text colors - only in prose */
+.reading-theme-dark .prose .text-text-light,
+.reading-theme-dark .prose .text-text-muted,
+.reading-theme-dark .prose p,
+.reading-theme-dark .prose span {
+  color: #e5e5e5 !important;
+}
+
+/* Bold text in dark theme */
+.reading-theme-dark .prose strong,
+.reading-theme-dark .prose .font-bold {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* Headings in dark theme */
+.reading-theme-dark .prose h1,
+.reading-theme-dark .prose h2,
+.reading-theme-dark .prose h3,
+.reading-theme-dark .prose h4 {
+  color: #e2c766 !important;
+}
+
+.reading-theme-dark .prose em {
+  color: #d1d5db !important;
+}
+
+.reading-theme-dark .border-accent-maroon\/20,
+.reading-theme-dark .border-accent-maroon\/30 {
+  border-color: #374151 !important;
+}
+
+/* ============================================================================
+   READING CONTROLS - Visible in All Themes
+   ============================================================================ */
+
+/* Light theme controls */
+.reading-theme-light .bg-gothic-mid\/95,
+.reading-theme-light .bg-gothic-mid\/90 {
+  background: rgba(240, 240, 240, 0.95) !important;
+  border-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.reading-theme-light .bg-gothic-dark {
+  background: rgba(230, 230, 230, 1) !important;
+}
+
+.reading-theme-light .text-primary {
+  color: #d4af37 !important;
+}
+
+.reading-theme-light .border-primary\/30 {
+  border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+/* Dark theme controls */
+.reading-theme-dark .bg-gothic-mid\/95,
+.reading-theme-dark .bg-gothic-mid\/90 {
+  background: rgba(30, 30, 30, 0.95) !important;
+  border-color: rgba(212, 175, 55, 0.3) !important;
+}
+
+.reading-theme-dark .bg-gothic-dark {
+  background: rgba(20, 20, 20, 1) !important;
+}
+
+.reading-theme-dark .text-primary {
+  color: #e2c766 !important;
+}
+
+/* ============================================================================
+   PROTECT AUTH MODAL & OTHER COMPONENTS
+   ============================================================================ */
+
+/* Ensure auth modal colors are NOT affected by theme CSS */
+.bg-gradient-to-br {
+  /* Prevent theme overrides on auth modal */
+}
+
+.bg-gradient-to-br .text-cream,
+.bg-gradient-to-br .text-gold,
+.bg-gradient-to-br .text-gold-bright {
+  color: inherit !important;
+}
+
+/* Protect specific auth modal elements */
+.font-cinzel.text-gold-bright {
+  color: var(--gold-bright) !important;
+}
+
+.text-cream {
+  color: var(--cream) !important;
+}
+
+.text-cream-dark {
+  color: var(--cream-dark) !important;
+}
+
+.text-black {
+  color: #000000 !important;
+}
+
+/* Protect form labels and inputs */
+label.text-cream,
+label.text-sm {
+  color: var(--cream) !important;
+}
+
+/* ============================================================================
+   PROSE STYLING - Scoped to Reader
+   ============================================================================ */
+
+.prose {
+  max-width: none;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
+  font-family: 'Cinzel', serif;
+  color: var(--gold-bright);
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+.prose p {
+  margin-bottom: 1.5em;
+}
+
+/* ============================================================================
+   SMOOTH TRANSITIONS
+   ============================================================================ */
+
+.reading-theme-light,
+.reading-theme-dark {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* ============================================================================
+   ACCESSIBILITY
+   ============================================================================ */
+
+button:focus-visible {
+  outline: 2px solid var(--gold-bright);
+  outline-offset: 2px;
+}
+
+.reading-theme-light a {
+  color: #1e40af;
+  text-decoration: underline;
+}
+
+.reading-theme-dark a {
+  color: #60a5fa;
+  text-decoration: underline;
+}
+
+/* ============================================================================
+   PRINT STYLES
+   ============================================================================ */
+
+@media print {
+  .sticky,
+  button,
+  .ornamental-divider,
+  .fixed {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+    color: black;
+  }
+}

@@ -227,111 +227,125 @@ export function BookView({ bookId, onBack }: BookViewProps) {
   }
 };
 
-  // ✅ FIXED: Bulk Purchase (Buy All Chapters)
-  const handleBuyAllChapters = async () => {
-    if (!user || unpurchasedChapters.length === 0) {
-      alert('No chapters to purchase');
-      return;
+ const handleBuyAllChapters = async () => {
+  if (!user || unpurchasedChapters.length === 0) {
+    alert('No chapters to purchase');
+    return;
+  }
+
+  setPurchasing(true);
+
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      throw new Error('No active session');
     }
 
-    setPurchasing(true);
+    const chapterIds = unpurchasedChapters.map(ch => ch.id);
 
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('No active session');
+    // Create bulk order
+    const orderResponse = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-bulk-order`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          chapterIds: chapterIds,
+          totalAmount: totalRemainingCost,
+          bookId: bookId,
+        }),
       }
+    );
 
-      const chapterIds = unpurchasedChapters.map(ch => ch.id);
-
-      // Create bulk order
-      const orderResponse = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-bulk-order`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${session.access_token}`,
-            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-          },
-          body: JSON.stringify({
-            chapterIds: chapterIds,
-            totalAmount: totalRemainingCost,
-            bookId: bookId,
-          }),
-        }
-      );
-
-      if (!orderResponse.ok) {
-        const errorText = await orderResponse.text();
-        throw new Error(`Failed to create bulk order: ${errorText}`);
+    // ✅ Handle "already purchased" error
+    if (!orderResponse.ok) {
+      const errorData = await orderResponse.json();
+      
+      if (errorData.alreadyOwned) {
+        // Some chapters already purchased, reload and continue
+        alert('Some chapters are already purchased. Refreshing...');
+        await loadBookData();
+        return;
       }
+      
+      throw new Error(errorData.error || 'Failed to create bulk order');
+    }
 
-      const orderData = await orderResponse.json();
+    const orderData = await orderResponse.json();
 
-      if (!orderData.orderId) {
-        throw new Error('Failed to create bulk order');
-      }
+    if (!orderData.orderId) {
+      throw new Error('Failed to create bulk order');
+    }
 
-      // Open Razorpay modal
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        amount: totalRemainingCost * 100,
-        currency: 'INR',
-        name: 'MemoryCraver',
-        description: `${book?.title} - ${unpurchasedChapters.length} chapters`,
-        order_id: orderData.orderId,
-        handler: async function (response: any) {
-          try {
-            const verifyResponse = await fetch(
-              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-bulk-payment`,
-              {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${session.access_token}`,
-                  'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-                },
-                body: JSON.stringify({
-                  razorpayOrderId: response.razorpay_order_id,
-                  razorpayPaymentId: response.razorpay_payment_id,
-                  razorpaySignature: response.razorpay_signature,
-                  chapterIds: chapterIds,
-                }),
-              }
-            );
-
-            const verifyData = await verifyResponse.json();
-
-            if (verifyData.success) {
-              alert(`Payment successful! ${verifyData.chaptersUnlocked} chapters unlocked.`);
-              await loadBookData();
-            } else {
-              alert('Payment verification failed. Please contact support.');
+    // Open Razorpay modal
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+      amount: totalRemainingCost * 100,
+      currency: 'INR',
+      name: 'MemoryCraver',
+      description: `${book?.title} - ${unpurchasedChapters.length} chapters`,
+      order_id: orderData.orderId,
+      handler: async function (response: any) {
+        try {
+          const verifyResponse = await fetch(
+            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-bulk-payment`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${session.access_token}`,
+                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+              },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                chapterIds: chapterIds,
+              }),
             }
-          } catch (error) {
-            console.error('Verification error:', error);
+          );
+
+          const verifyData = await verifyResponse.json();
+
+          if (verifyData.success) {
+            alert(`Payment successful! ${verifyData.chaptersUnlocked} chapters unlocked.`);
+            await loadBookData(); // ✅ Reload to refresh purchases
+          } else {
             alert('Payment verification failed. Please contact support.');
           }
-        },
-        prefill: {
-          name: profile?.full_name || '',
-          email: user?.email || '',
-        },
-        theme: {
-          color: '#d4af37',
-        },
-      };
+        } catch (error) {
+          console.error('Verification error:', error);
+          alert('Payment verification failed. Please contact support.');
+        } finally {
+          setPurchasing(false);
+        }
+      },
+      prefill: {
+        name: profile?.full_name || '',
+        email: user?.email || '',
+      },
+      theme: {
+        color: '#d4af37',
+      },
+      modal: {
+        ondismiss: function() {
+          setPurchasing(false);
+        }
+      }
+    };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error: any) {
-      console.error('Bulk purchase error:', error);
-      alert(error.message || 'Failed to initiate bulk purchase. Please try again.');
-    } finally {
-      setPurchasing(false);
-    }
-  };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  } catch (error: any) {
+    console.error('Bulk purchase error:', error);
+    alert(error.message || 'Failed to initiate bulk purchase. Please try again.');
+    setPurchasing(false);
+  }
+};
 
   const handleReadChapter = (chapter: Chapter, index: number) => {
     if (!isChapterPurchased(chapter.id) && profile?.role !== 'author') {

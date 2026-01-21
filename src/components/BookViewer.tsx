@@ -71,21 +71,27 @@ export function BookView({ bookId, onBack }: BookViewProps) {
   };
 
   const loadPurchases = async () => {
-    if (!user) return;
-    
-    try {
-      const { data: purchaseData, error } = await supabase
-        .from('purchases')
-        .select('*')
-        .eq('user_id', user.id)
-        .eq('payment_status', 'completed');
+  if (!user) return;
+  
+  try {
+    const { data: purchaseData, error } = await supabase
+      .from('purchases')
+      .select('*')
+      .eq('user_id', user.id)
+      .eq('payment_status', 'completed')
+      .order('purchased_at', { ascending: false }); // ✅ Order by latest first
 
-      if (error) throw error;
-      setPurchases(purchaseData || []);
-    } catch (error) {
+    if (error) {
       console.error('Error loading purchases:', error);
+      throw error;
     }
-  };
+    
+    console.log('Loaded purchases:', purchaseData); // ✅ Debug log
+    setPurchases(purchaseData || []);
+  } catch (error) {
+    console.error('Error loading purchases:', error);
+  }
+};
 
   const isChapterPurchased = (chapterId: string) => {
     if (profile?.role === 'author') return true;
@@ -128,16 +134,31 @@ export function BookView({ bookId, onBack }: BookViewProps) {
         }
       );
 
-      if (!orderResponse.ok) {
-        const errorText = await orderResponse.text();
-        throw new Error(`Failed to create order: ${errorText}`);
+      // ✅ Handle "already purchased" error
+    if (!orderResponse.ok) {
+      const errorData = await orderResponse.json();
+      
+      if (errorData.alreadyOwned) {
+        // Chapter is already purchased, just reload and open
+        await loadBookData();
+        const index = chapters.findIndex(ch => ch.id === chapter.id);
+        if (index >= 0) {
+          setCurrentChapterIndex(index);
+          setReadingChapterId(chapter.id);
+        }
+        return;
       }
+      
+      throw new Error(errorData.error || 'Failed to create order');
+    }
 
-      const orderData = await orderResponse.json();
+    const orderData = await orderResponse.json();
 
-      if (!orderData.orderId) {
-        throw new Error('Failed to create order');
-      }
+    if (!orderData.orderId) {
+      throw new Error('Failed to create order');
+    }
+
+      
 
       // Open Razorpay modal
       const options = {
@@ -170,35 +191,41 @@ export function BookView({ bookId, onBack }: BookViewProps) {
 
             const verifyData = await verifyResponse.json();
 
-            if (verifyData.success) {
-              alert('Payment successful! Chapter unlocked.');
-              await loadBookData();
-            } else {
-              alert('Payment verification failed. Please contact support.');
-            }
-          } catch (error) {
-            console.error('Verification error:', error);
+          if (verifyData.success) {
+            alert('Payment successful! Chapter unlocked.');
+            await loadBookData(); // ✅ Reload purchases
+          } else {
             alert('Payment verification failed. Please contact support.');
           }
-        },
-        prefill: {
-          name: profile?.full_name || '',
-          email: user?.email || '',
-        },
-        theme: {
-          color: '#d4af37',
-        },
-      };
+        } catch (error) {
+          console.error('Verification error:', error);
+          alert('Payment verification failed. Please contact support.');
+        } finally {
+          setPurchasing(false);
+        }
+      },
+      prefill: {
+        name: profile?.full_name || '',
+        email: user?.email || '',
+      },
+      theme: {
+        color: '#d4af37',
+      },
+      modal: {
+        ondismiss: function() {
+          setPurchasing(false);
+        }
+      }
+    };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-    } catch (error: any) {
-      console.error('Purchase error:', error);
-      alert(error.message || 'Failed to initiate purchase. Please try again.');
-    } finally {
-      setPurchasing(false);
-    }
-  };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  } catch (error: any) {
+    console.error('Purchase error:', error);
+    alert(error.message || 'Failed to initiate purchase. Please try again.');
+    setPurchasing(false);
+  }
+};
 
   // ✅ FIXED: Bulk Purchase (Buy All Chapters)
   const handleBuyAllChapters = async () => {

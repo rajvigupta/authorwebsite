@@ -1,98 +1,96 @@
-// @deno-types="npm:@supabase/supabase-js@2"
 import { createClient } from 'npm:@supabase/supabase-js@2';
-// @deno-types="npm:razorpay@2"
-import Razorpay from 'npm:razorpay@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, Apikey',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Client-Info, apikey',
 };
 
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, {
-      status: 200,
-      headers: corsHeaders,
-    });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const razorpayKeyId = Deno.env.get('RAZORPAY_KEY_ID')!;
-    const razorpayKeySecret = Deno.env.get('RAZORPAY_KEY_SECRET')!;
+    // ───────────────── ENV ─────────────────
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
+    const SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const RAZORPAY_KEY_ID = Deno.env.get('RAZORPAY_KEY_ID')!;
+    const RAZORPAY_KEY_SECRET = Deno.env.get('RAZORPAY_KEY_SECRET')!;
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const supabase = createClient(SUPABASE_URL, SERVICE_ROLE_KEY);
 
+    // ───────────── AUTH USER ─────────────
     const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      throw new Error('Missing authorization header');
-    }
+    if (!authHeader) throw new Error('Missing Authorization header');
 
     const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+    const { data: { user }, error } = await supabase.auth.getUser(token);
+    if (error || !user) throw new Error('Unauthorized');
 
-    if (userError || !user) {
-      throw new Error('Unauthorized');
-    }
-
-    const body = await req.json();
-    const { chapterId, amount } = body;
-
+    // ───────────── REQUEST BODY ─────────────
+    const { chapterId, amount } = await req.json();
     if (!chapterId || !amount) {
-      throw new Error('Missing required fields');
+      throw new Error('Missing chapterId or amount');
     }
 
-    const { data: chapter, error: chapterError } = await supabase
+    // ───────────── VERIFY CHAPTER ─────────────
+    const { data: chapter } = await supabase
       .from('chapters')
-      .select('*')
+      .select('id')
       .eq('id', chapterId)
       .single();
 
-    if (chapterError || !chapter) {
-      throw new Error('Chapter not found');
-    }
+    if (!chapter) throw new Error('Chapter not found');
 
-    const { data: existingPurchase } = await supabase
-      .from('purchases')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('chapter_id', chapterId)
-      .eq('payment_status', 'completed')
-      .maybeSingle();
+    // ───────────── CREATE RAZORPAY ORDER ─────────────
+    const authString = btoa(`${RAZORPAY_KEY_ID}:${RAZORPAY_KEY_SECRET}`);
 
-    if (existingPurchase) {
-      throw new Error('Chapter already purchased');
-    }
-
-    const razorpay = new Razorpay({
-      key_id: razorpayKeyId,
-      key_secret: razorpayKeySecret,
-    });
-
-    const order = await razorpay.orders.create({
-      amount: Math.round(amount * 100),
-      currency: 'INR',
-      receipt: `receipt_${chapterId}_${user.id}`,
-    });
-
-    const { error: insertError } = await supabase.from('purchases').insert([
+    const razorpayResponse = await fetch(
+      'https://api.razorpay.com/v1/orders',
       {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Basic ${authString}`,
+        },
+        body: JSON.stringify({
+          amount: Math.round(amount * 100), // INR → paise
+          currency: 'INR',
+        receipt: `ch_${chapterId.slice(0, 8)}_${user.id.slice(0, 8)}`,
+
+        }),
+      }
+    );
+
+    
+
+    if (!razorpayResponse.ok) {
+      const errText = await razorpayResponse.text();
+      console.error('Razorpay error:', errText);
+      throw new Error('Failed to create Razorpay order');
+    }
+
+    const order = await razorpayResponse.json();
+
+    // ───────────── SAVE PURCHASE (PENDING) ─────────────
+    const { error: insertError } = await supabase
+      .from('purchases')
+      .insert({
         user_id: user.id,
         chapter_id: chapterId,
         amount_paid: amount,
         razorpay_order_id: order.id,
         payment_status: 'pending',
-      },
-    ]);
+      });
 
-    if (insertError) {
-      throw insertError;
-    }
+    if (insertError) throw insertError;
 
     return new Response(
-      JSON.stringify({ orderId: order.id }),
+      JSON.stringify({
+        orderId: order.id,
+        key: RAZORPAY_KEY_ID,
+      }),
       {
         headers: {
           ...corsHeaders,
@@ -100,10 +98,10 @@ Deno.serve(async (req: Request) => {
         },
       }
     );
-  } catch (error) {
-    const err = error as Error;
+  } catch (err) {
+    console.error(err);
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: (err as Error).message }),
       {
         status: 400,
         headers: {

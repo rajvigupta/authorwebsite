@@ -52,6 +52,19 @@ export function BookChapterManager({ bookId, bookTitle, onBack }: BookChapterMan
   };
 
   const togglePublish = async (chapter: Chapter) => {
+   
+   const action = chapter.is_published ? 'unpublish' : 'publish';
+  const confirmed = window.confirm(
+    `Are you sure you want to ${action} "Chapter ${chapter.chapter_number}: ${chapter.title}"?\n\n${
+      chapter.is_published 
+        ? 'This will hide the chapter from readers.' 
+        : 'This will make the chapter visible to readers who purchase it.'
+    }`
+  );
+
+  if (!confirmed) return;
+   
+   
     try {
       const { error } = await supabase
         .from('chapters')

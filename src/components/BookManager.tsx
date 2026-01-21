@@ -204,6 +204,16 @@ const handleSubmit = async (e: React.FormEvent) => {
 
   const togglePublish = async (book: BookType) =>
      {
+      const action = book.is_published ? 'unpublish' : 'publish';
+  const confirmed = window.confirm(
+    `Are you sure you want to ${action} "${book.title}"?\n\n${
+      book.is_published 
+        ? 'This will hide the book from readers.' 
+        : 'This will make the book visible to all readers.'
+    }`
+  );
+
+  if (!confirmed) return
     try {
       const { error } = await supabase
         .from('books')

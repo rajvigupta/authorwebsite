@@ -46,6 +46,18 @@ export function ChapterManagement() {
   };
 
   const togglePublish = async (chapter: Chapter) => {
+    
+     const action = chapter.is_published ? 'unpublish' : 'publish';
+  const confirmed = window.confirm(
+    `Are you sure you want to ${action} "Chapter ${chapter.chapter_number}: ${chapter.title}"?\n\n${
+      chapter.is_published 
+        ? 'This will hide this standalone chapter from the store.' 
+        : 'This will make this standalone chapter visible in the store.'
+    }`
+  );
+
+  if (!confirmed) return;
+    
     try {
       const { error } = await supabase
         .from('chapters')

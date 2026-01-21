@@ -56,29 +56,37 @@ const handleSubmit = async (e: React.FormEvent) => {
     let coverImageUrl = editingChapter?.cover_image_url || null;
 
     // ✅ FIXED: PDF Upload with folder structure
-    if (contentType === 'pdf' && pdfFile) {
-      const fileExt = pdfFile.name.split('.').pop();
-      const filePath = `${profile?.id}/${Date.now()}.${fileExt}`;  // ✅ Added folder
+if (contentType === 'pdf' && pdfFile) {
+  const fileExt = pdfFile.name.split('.').pop();
+  const filePath = `${profile?.id}/${Date.now()}.${fileExt}`;
 
-      console.log('Uploading PDF to:', filePath);
+  console.log('📄 Uploading PDF to:', filePath);
 
-      const { error: uploadError } = await supabase.storage
-        .from('chapter-pdfs')
-        .upload(filePath, pdfFile, {
-          upsert: true,
-          contentType: pdfFile.type
-        });
+  const { error: uploadError, data: uploadData } = await supabase.storage
+    .from('chapter-pdfs')
+    .upload(filePath, pdfFile, {
+      upsert: true,
+      contentType: pdfFile.type || 'application/pdf'
+    });
 
-      if (uploadError) {
-        console.error('PDF upload error:', uploadError);
-        throw uploadError;
-      }
+  if (uploadError) {
+    console.error('❌ PDF upload error:', uploadError);
+    throw uploadError;
+  }
 
-      const { data } = supabase.storage.from('chapter-pdfs').getPublicUrl(filePath);
-      pdfUrl = data.publicUrl;
-      
-      console.log('PDF uploaded:', pdfUrl);
-    }
+  console.log('✅ PDF upload data:', uploadData);
+
+  const { data: urlData } = supabase.storage
+    .from('chapter-pdfs')
+    .getPublicUrl(filePath);
+
+  if (!urlData?.publicUrl) {
+    throw new Error('Failed to get PDF public URL');
+  }
+
+  pdfUrl = urlData.publicUrl;
+  console.log('✅ PDF URL:', pdfUrl);
+}
 
     // ✅ FIXED: Cover Image Upload with folder structure
     if (coverImage) {

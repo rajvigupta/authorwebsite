@@ -191,7 +191,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
                 type="text"
                 value={securityAnswer}
                 onChange={(e) => setSecurityAnswer(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-cream placeholder-cream-dark/50 transition-all font-lora"
+                className="w-full px-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
                 placeholder="Enter your answer"
                 required
               />
@@ -236,10 +236,10 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
                   <Lock size={18} className="text-green-fresh" />
                 </div>
                 <input
-                  type="password"
+                  type="text"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-cream placeholder-cream-dark/50 transition-all font-lora"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
                   placeholder="••••••••"
                   required
                   minLength={6}
@@ -256,10 +256,10 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
                   <Lock size={18} className="text-green-fresh" />
                 </div>
                 <input
-                  type="password"
+                  type="text"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-cream placeholder-cream-dark/50 transition-all font-lora"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
                   placeholder="••••••••"
                   required
                   minLength={6}

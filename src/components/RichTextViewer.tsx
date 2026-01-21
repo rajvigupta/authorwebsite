@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { Type, ZoomIn, ZoomOut, AlignLeft } from 'lucide-react';
 
 type ContentBlock = {
   id: string;
@@ -11,42 +12,38 @@ type ContentBlock = {
 
 type RichTextViewerProps = {
   content: ContentBlock[];
-  userEmail?: string; // Optional, not used anymore but kept for compatibility
+  userEmail?: string;
+  theme?: 'gothic' | 'light' | 'dark';
 };
 
+type FontSize = 'small' | 'medium' | 'large';
+type LineHeight = 'comfortable' | 'spacious';
+
 function parseMarkdown(text: string) {
-  // Split by markdown patterns while preserving them
   const parts: { text: string; bold?: boolean; italic?: boolean }[] = [];
-  
-  // Pattern: ***text*** (bold + italic), **text** (bold), *text* (italic)
   const regex = /(\*\*\*.*?\*\*\*|\*\*.*?\*\*|\*.*?\*)/g;
   let lastIndex = 0;
   let match;
 
   while ((match = regex.exec(text)) !== null) {
-    // Add text before match
     if (match.index > lastIndex) {
       parts.push({ text: text.slice(lastIndex, match.index) });
     }
 
     const matched = match[0];
     
-    // Determine formatting
     if (matched.startsWith('***') && matched.endsWith('***')) {
-      // Bold + Italic
       parts.push({ 
         text: matched.slice(3, -3), 
         bold: true, 
         italic: true 
       });
     } else if (matched.startsWith('**') && matched.endsWith('**')) {
-      // Bold
       parts.push({ 
         text: matched.slice(2, -2), 
         bold: true 
       });
     } else if (matched.startsWith('*') && matched.endsWith('*')) {
-      // Italic
       parts.push({ 
         text: matched.slice(1, -1), 
         italic: true 
@@ -56,7 +53,6 @@ function parseMarkdown(text: string) {
     lastIndex = regex.lastIndex;
   }
 
-  // Add remaining text
   if (lastIndex < text.length) {
     parts.push({ text: text.slice(lastIndex) });
   }
@@ -64,16 +60,37 @@ function parseMarkdown(text: string) {
   return parts;
 }
 
+export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTextViewerProps) {
+  const [fontSize, setFontSize] = useState<FontSize>('medium');
+  const [lineHeight, setLineHeight] = useState<LineHeight>('comfortable');
+  const [showControls, setShowControls] = useState(false);
 
-export function RichTextViewer({ content }: RichTextViewerProps) {
+  // Load preferences from localStorage
   useEffect(() => {
-    // Disable right-click
+    const savedFontSize = localStorage.getItem('reader-font-size') as FontSize;
+    const savedLineHeight = localStorage.getItem('reader-line-height') as LineHeight;
+    
+    if (savedFontSize) setFontSize(savedFontSize);
+    if (savedLineHeight) setLineHeight(savedLineHeight);
+  }, []);
+
+  // Save preferences
+  const handleFontSizeChange = (size: FontSize) => {
+    setFontSize(size);
+    localStorage.setItem('reader-font-size', size);
+  };
+
+  const handleLineHeightChange = (height: LineHeight) => {
+    setLineHeight(height);
+    localStorage.setItem('reader-line-height', height);
+  };
+
+  useEffect(() => {
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       return false;
     };
 
-    // Disable keyboard shortcuts for copying
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
         (e.ctrlKey || e.metaKey) &&
@@ -85,7 +102,6 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
         e.preventDefault();
         return false;
       }
-      // Disable F12, Ctrl+Shift+I, Ctrl+Shift+J
       if (
         e.key === 'F12' ||
         ((e.ctrlKey || e.metaKey) && e.shiftKey && 
@@ -95,7 +111,6 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
         return false;
       }
     };
-
 
     document.addEventListener('contextmenu', handleContextMenu);
     document.addEventListener('keydown', handleKeyDown);
@@ -114,20 +129,195 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
     );
   }
 
+  // Get theme wrapper class
+  const getThemeWrapperClass = () => {
+    if (theme === 'light') return 'reading-theme-light';
+    if (theme === 'dark') return 'reading-theme-dark';
+    return ''; // Gothic is default
+  };
+
+  // Get watermark style based on theme - IMPROVED VISIBILITY
+  const getWatermarkStyle = () => {
+    switch(theme) {
+      case 'gothic':
+        return {
+          color: 'rgba(212, 175, 55, 0.15)', // Increased from 0.08
+          textShadow: '0 0 4px rgba(212, 175, 55, 0.3)',
+          fontSize: '11px',
+          fontWeight: '500'
+        };
+      case 'light':
+        return {
+          color: 'rgba(0, 0, 0, 0.08)', // Reduced from 0.05 but still subtle
+          textShadow: '0 0 2px rgba(0, 0, 0, 0.1)',
+          fontSize: '10px',
+          fontWeight: '400'
+        };
+      case 'dark':
+        return {
+          color: 'rgba(255, 255, 255, 0.12)', // Increased from 0.10
+          textShadow: '0 0 4px rgba(255, 255, 255, 0.2)',
+          fontSize: '11px',
+          fontWeight: '500'
+        };
+      default:
+        return {};
+    }
+  };
+
+  // Font size classes
+  const getFontSizeClass = () => {
+    switch(fontSize) {
+      case 'small': return 'text-base';
+      case 'medium': return 'text-lg';
+      case 'large': return 'text-xl';
+    }
+  };
+
+  // Line height classes - FIXED: More distinction
+  const getLineHeightClass = () => {
+    switch(lineHeight) {
+      case 'comfortable': return 'leading-relaxed'; // 1.625
+      case 'spacious': return 'leading-loose'; // 2.0
+    }
+  };
+
+  const watermarkStyle = getWatermarkStyle();
+
   return (
     <div 
-      className="relative select-none"
+      className={`relative select-none ${getThemeWrapperClass()}`}
       onCopy={(e) => e.preventDefault()}
       onCut={(e) => e.preventDefault()}
       onPaste={(e) => e.preventDefault()}
       onDragStart={(e) => e.preventDefault()}
     >
-      {/* Subtle watermark - only once at bottom */}
-      <div className="absolute top-0 right-0 text-[8px] text-text-muted/10 pointer-events-none select-none font-mono px-2 py-1">
-        Protected Content
+      {/* Reading Controls - Floating Toolbar */}
+      <div className="sticky top-20 z-30 mb-6">
+        <div className="flex justify-center">
+          <button
+            onClick={() => setShowControls(!showControls)}
+            className="px-4 py-2 bg-gothic-mid/90 backdrop-blur-sm text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-all font-lora text-sm flex items-center gap-2"
+          >
+            <Type size={16} />
+            Reading Options
+          </button>
+        </div>
+
+        {showControls && (
+          <div className="mt-2 mx-auto max-w-2xl bg-gothic-mid/95 backdrop-blur-sm border border-primary/30 rounded-lg p-4 shadow-gold">
+            {/* Font Size Controls */}
+            <div className="mb-4">
+              <label className="block text-sm font-cinzel text-primary mb-2">Font Size</label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleFontSizeChange('small')}
+                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
+                    fontSize === 'small'
+                      ? 'bg-primary text-gothic-darkest font-semibold'
+                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+                  }`}
+                >
+                  <ZoomOut size={14} className="inline mr-1" />
+                  Small
+                </button>
+                <button
+                  onClick={() => handleFontSizeChange('medium')}
+                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
+                    fontSize === 'medium'
+                      ? 'bg-primary text-gothic-darkest font-semibold'
+                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+                  }`}
+                >
+                  <Type size={14} className="inline mr-1" />
+                  Medium
+                </button>
+                <button
+                  onClick={() => handleFontSizeChange('large')}
+                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
+                    fontSize === 'large'
+                      ? 'bg-primary text-gothic-darkest font-semibold'
+                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+                  }`}
+                >
+                  <ZoomIn size={14} className="inline mr-1" />
+                  Large
+                </button>
+              </div>
+            </div>
+
+            {/* Line Height Controls - SIMPLIFIED TO 2 OPTIONS */}
+            <div>
+              <label className="block text-sm font-cinzel text-primary mb-2">Line Spacing</label>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleLineHeightChange('comfortable')}
+                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
+                    lineHeight === 'comfortable'
+                      ? 'bg-primary text-gothic-darkest font-semibold'
+                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+                  }`}
+                >
+                  <AlignLeft size={14} className="inline mr-1" />
+                  Comfortable
+                </button>
+                <button
+                  onClick={() => handleLineHeightChange('spacious')}
+                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
+                    lineHeight === 'spacious'
+                      ? 'bg-primary text-gothic-darkest font-semibold'
+                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+                  }`}
+                >
+                  <AlignLeft size={14} className="inline mr-1" />
+                  Spacious
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
-      <div className="prose prose-lg dark:prose-invert max-w-none prose-headings:text-primary prose-p:text-text-light prose-strong:text-primary">
+      {/* SIMPLIFIED WATERMARKS - Just 3 strategic placements */}
+      {userEmail && (
+        <div className="fixed inset-0 pointer-events-none select-none overflow-hidden z-10">
+          {/* Center watermark */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-mono whitespace-nowrap opacity-60"
+            style={{
+              ...watermarkStyle,
+              transform: 'translate(-50%, -50%) rotate(-45deg)'
+            }}
+          >
+            {userEmail}
+          </div>
+
+          {/* Top-right watermark */}
+          <div
+            className="absolute top-1/4 right-1/4 font-mono whitespace-nowrap opacity-50"
+            style={{
+              ...watermarkStyle,
+              transform: 'rotate(-45deg)'
+            }}
+          >
+            {userEmail}
+          </div>
+
+          {/* Bottom-left watermark */}
+          <div
+            className="absolute bottom-1/4 left-1/4 font-mono whitespace-nowrap opacity-50"
+            style={{
+              ...watermarkStyle,
+              transform: 'rotate(-45deg)'
+            }}
+          >
+            {userEmail}
+          </div>
+        </div>
+      )}
+
+      {/* Main Content */}
+      <div className={`prose prose-lg max-w-none ${getFontSizeClass()} ${getLineHeightClass()}`}>
         {content.map((block) => {
           switch (block.type) {
             case 'heading':
@@ -140,9 +330,9 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
                 >
                   {headingParts.map((part, i) => {
                     if (part.bold && part.italic) {
-                      return <strong key={i} className="italic">{part.text}</strong>;
+                      return <strong key={i} className="italic text-primary">{part.text}</strong>;
                     } else if (part.bold) {
-                      return <strong key={i}>{part.text}</strong>;
+                      return <strong key={i} className="text-primary">{part.text}</strong>;
                     } else if (part.italic) {
                       return <em key={i}>{part.text}</em>;
                     }
@@ -156,13 +346,21 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
               return (
                 <p
                   key={block.id}
-                  className="text-text-light mb-4 whitespace-pre-wrap leading-relaxed select-none font-cormorant text-lg"
+                  className="text-text-light mb-4 whitespace-pre-wrap select-none font-cormorant"
                 >
                   {parts.map((part, i) => {
                     if (part.bold && part.italic) {
-                      return <strong key={i} className="italic font-bold">{part.text}</strong>;
+                      return (
+                        <strong key={i} className="italic font-bold text-primary">
+                          {part.text}
+                        </strong>
+                      );
                     } else if (part.bold) {
-                      return <strong key={i} className="font-bold">{part.text}</strong>;
+                      return (
+                        <strong key={i} className="font-bold text-primary">
+                          {part.text}
+                        </strong>
+                      );
                     } else if (part.italic) {
                       return <em key={i} className="italic">{part.text}</em>;
                     }
@@ -174,12 +372,6 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
             case 'image':
               return block.imageUrl ? (
                 <figure key={block.id} className="my-6 relative">
-                  {/* Subtle image watermark */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-white/5 text-xs font-mono rotate-[-15deg] bg-black/5 px-4 py-2 rounded">
-                      ©
-                    </div>
-                  </div>
                   <img
                     src={block.imageUrl}
                     alt={block.alt || 'Chapter image'}
@@ -201,10 +393,10 @@ export function RichTextViewer({ content }: RichTextViewerProps) {
         })}
       </div>
 
-      {/* Subtle footer watermark */}
-      <div className="mt-12 pt-6 border-t border-accent-maroon/10 text-center">
+      {/* Footer watermark - subtle text only */}
+      <div className="mt-12 pt-6 border-t border-accent-maroon/10 text-center relative z-20">
         <p className="text-[9px] text-text-muted/30 font-mono select-none">
-          This content is protected • Not for redistribution
+          Protected Content • Not for redistribution
         </p>
       </div>
     </div>

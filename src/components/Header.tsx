@@ -36,7 +36,7 @@ export function Header({ showDashboard, onToggleDashboard, onAuthClick }: Header
                 memorycraver
               </h1>
               <p className="text-sm font-cormorant italic text-text-muted">
-              tales written in time 
+             some tagline here ???
               </p>
             </div>
           </div>

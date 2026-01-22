@@ -64,6 +64,7 @@ export type Chapter = {
   title: string;
   description: string;
   price: number;
+  is_free: boolean;
   pdf_url: string | null;
   cover_image_url: string | null;
   chapter_number: number;

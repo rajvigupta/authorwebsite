@@ -95,6 +95,10 @@ export function BookView({ bookId, onBack }: BookViewProps) {
 
   const isChapterPurchased = (chapterId: string) => {
     if (profile?.role === 'author') return true;
+
+    // Check if chapter is free
+    const chapter = chapters.find(ch => ch.id === chapterId);
+    if (chapter?.is_free) return true;
     return purchases.some(p => p.chapter_id === chapterId);
   };
 

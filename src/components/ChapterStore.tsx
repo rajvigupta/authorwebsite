@@ -147,7 +147,7 @@ export function ChapterStore() {
             Stories by Alankrita - @memorycraver
           </h1>
           <p className="text-lg font-cormorant italic text-text-muted">
-            Dive into captivating tales written in time
+            Dive into captivating tales (or something else)
           </p>
         </div>
 
@@ -218,7 +218,7 @@ export function ChapterStore() {
           <div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
               <FileText size={28} />
-              Standalone Chapters
+              Standalone Chapter Posts
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {chapters.map((chapter) => {
@@ -246,11 +246,20 @@ export function ChapterStore() {
                         <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                           Chapter {chapter.chapter_number}
                         </span>
-                        {purchased && (
-                          <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">
-                            Owned
-                          </span>
-                        )}
+
+                        {chapter.is_free ? (
+  <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-bold">
+    FREE
+  </span>
+) : purchased ? (
+  <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">
+    Owned
+  </span>
+) : null}
+
+                        
+
+
                       </div>
 
                       <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -262,9 +271,20 @@ export function ChapterStore() {
                       </p>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-                          ₹{chapter.price}
-                        </span>
+
+                        {chapter.is_free ? (
+  <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+    FREE
+  </span>
+) : (
+  <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+    ₹{chapter.price}
+  </span>
+)}
+
+                          
+
+
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           {chapter.content_type === 'pdf' ? 'PDF' : 'Text'} →
                         </span>

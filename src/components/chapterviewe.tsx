@@ -70,6 +70,7 @@ export function StandaloneChapterView({ chapterId, onBack }: StandaloneChapterVi
 
   const isPurchased = () => {
     if (profile?.role === 'author') return true;
+    if (chapter?.is_free) return true;
     return purchase !== null;
   };
 

@@ -23,7 +23,9 @@ export function ChapterEditor({ bookId, editingChapter, onSave, onCancel }: Chap
     price: '',
     chapter_number: '1',
     is_published: false,
+    is_free : false,
   });
+
   const [pdfFile, setPdfFile] = useState<File | null>(null);
   const [coverImage, setCoverImage] = useState<File | null>(null);
   const [richContent, setRichContent] = useState<any[]>([]);
@@ -46,6 +48,7 @@ export function ChapterEditor({ bookId, editingChapter, onSave, onCancel }: Chap
         price: editingChapter.price.toString(),
         chapter_number: editingChapter.chapter_number.toString(),
         is_published: editingChapter.is_published,
+        is_free: editingChapter.is_free || false,
       });
       setContentType(editingChapter.content_type);
       setAutoNumbering(false); // Disable auto-numbering when editing
@@ -128,6 +131,7 @@ export function ChapterEditor({ bookId, editingChapter, onSave, onCancel }: Chap
         title: formData.title,
         description: formData.description || null, // Allow empty description for book chapters
         price: parseFloat(formData.price),
+        is_free: formData.is_free,
         chapter_number: parseInt(formData.chapter_number),
         content_type: contentType,
         pdf_url: contentType === 'pdf' ? pdfUrl : null,
@@ -275,6 +279,42 @@ export function ChapterEditor({ bookId, editingChapter, onSave, onCancel }: Chap
           />
         </div>
       </div>
+
+
+
+      {/* ✅ FREE CHAPTER TOGGLE - THIS IS THE NEW SECTION */}
+      <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4">
+        <div className="flex items-center gap-3">
+          <input
+            type="checkbox"
+            id="is-free"
+            checked={formData.is_free}
+            onChange={(e) => setFormData({ 
+              ...formData, 
+              is_free: e.target.checked,
+              price: e.target.checked ? '0' : formData.price
+            })}
+            className="w-5 h-5 text-green-600 rounded focus:ring-green-500"
+          />
+          <label htmlFor="is-free" className="flex-1 cursor-pointer">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium text-gray-900 dark:text-white">
+                Make this chapter FREE
+              </span>
+              <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded-full font-semibold">
+                FREE
+              </span>
+            </div>
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+              {formData.is_free 
+                ? 'This chapter will be accessible to all users without payment'
+                : 'Check this to make the chapter free for all readers'
+              }
+            </p>
+          </label>
+        </div>
+      </div>
+      {/* ✅ END OF NEW SECTION */}
 
       {/* Title */}
       <div>

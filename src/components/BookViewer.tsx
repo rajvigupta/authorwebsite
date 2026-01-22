@@ -519,7 +519,17 @@ export function BookView({ bookId, onBack }: BookViewProps) {
                     onClick={() => handleReadChapter(chapter, index)}
                     className="bg-gothic-mid p-4 rounded-lg border border-accent-maroon/20 hover:border-primary/50 transition-all cursor-pointer group"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+          {/* ✅ ADD THIS NEW SECTION - Chapter Cover */}
+          {chapter.cover_image_url && (
+            <img
+              src={chapter.cover_image_url}
+              alt={chapter.title}
+              className="w-20 h-28 object-cover rounded border-2 border-accent-maroon/30 flex-shrink-0"
+            />
+          )}
+          
+          
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
                           <span className="text-primary font-cinzel text-sm">

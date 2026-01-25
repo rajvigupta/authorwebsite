@@ -59,6 +59,7 @@ export function ChapterEditor({ bookId, editingChapter, onSave, onCancel }: Chap
   }, [editingChapter]);
 
   const fetchNextChapterNumber = async () => {
+    
     try {
       const query = bookId
         ? supabase.from('chapters').select('chapter_number').eq('book_id', bookId)

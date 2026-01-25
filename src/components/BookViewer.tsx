@@ -93,6 +93,8 @@ export function BookView({ bookId, onBack }: BookViewProps) {
   }
 };
 
+
+
   const isChapterPurchased = (chapterId: string) => {
     if (profile?.role === 'author') return true;
 

@@ -109,40 +109,41 @@ export function ChapterReader({
 
   return (
     <div className={`fixed inset-0 bg-gothic-darkest z-50 overflow-y-auto ${getThemeClass()}`}>
-      {/* Header - Fixed at top */}
+      
+      {/* Header - Fixed at top - MOBILE RESPONSIVE */}
       <div className="sticky top-0 z-[100] bg-gothic-dark/95 backdrop-blur-sm border-b border-accent-maroon/30">
-        <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            {/* Left: Close button */}
+        <div className="max-w-4xl mx-auto px-3 md:px-4 py-3 md:py-4">
+          <div className="flex items-center justify-between gap-2">
+            {/* Left: Close button - Compact on mobile */}
             <button
               onClick={onClose}
-              className="flex items-center gap-2 text-text-muted hover:text-primary transition-colors"
+              className="flex items-center gap-1 md:gap-2 text-text-muted hover:text-primary transition-colors shrink-0"
             >
-              <X size={24} />
-              <span className="font-lora">Close</span>
+              <X size={20} className="md:w-6 md:h-6" />
+              <span className="font-lora text-sm md:text-base hidden sm:inline">Close</span>
             </button>
 
-            {/* Center: Chapter info */}
-            <div className="text-center flex-1 px-4">
+            {/* Center: Chapter info - Truncate on mobile */}
+            <div className="text-center flex-1 px-2 md:px-4 min-w-0 overflow-hidden">
               {bookTitle && (
-                <p className="text-xs text-text-muted font-lora">{bookTitle}</p>
+                <p className="text-xs text-text-muted font-lora truncate">{bookTitle}</p>
               )}
-              <h1 className="text-lg font-cinzel text-primary">
-                Chapter {chapter.chapter_number}: {chapter.title}
+              <h1 className="text-sm md:text-lg font-cinzel text-primary truncate">
+                Ch {chapter.chapter_number}: {chapter.title}
               </h1>
             </div>
 
-            {/* Right: Theme toggle only (removed PDF download) */}
-            <div className="flex items-center gap-2">
+            {/* Right: Theme toggle - Icon only on mobile */}
+            <div className="flex items-center gap-1 md:gap-2 shrink-0">
               <div className="relative z-[101]">
                 <button
                   onClick={() => setShowThemeSelector(!showThemeSelector)}
-                  className="flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all border border-primary/30"
+                  className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all border border-primary/30"
                   title="Change reading theme"
                 >
-                  <Palette size={18} />
-                  <span className="text-2xl">{currentTheme.icon}</span>
-                  <span className="hidden sm:inline font-lora text-sm">{currentTheme.label}</span>
+                  <Palette size={16} className="md:w-5 md:h-5" />
+                  <span className="text-xl md:text-2xl">{currentTheme.icon}</span>
+                  <span className="hidden lg:inline font-lora text-sm">{currentTheme.label}</span>
                 </button>
 
                 {showThemeSelector && (
@@ -152,8 +153,9 @@ export function ChapterReader({
                       onClick={() => setShowThemeSelector(false)}
                     />
                     
+                    {/* Theme Dropdown - Mobile optimized */}
                     <div 
-                      className="absolute right-0 mt-2 bg-gothic-mid rounded-lg shadow-2xl border-2 border-accent-maroon/30 overflow-hidden min-w-[280px] z-[103]"
+                      className="absolute right-0 mt-2 bg-gothic-mid rounded-lg shadow-2xl border-2 border-accent-maroon/30 overflow-hidden w-[260px] md:min-w-[280px] z-[103]"
                     >
                       <div className="p-2">
                         <p className="text-xs font-cinzel text-primary px-3 py-2 uppercase tracking-wider">
@@ -167,21 +169,21 @@ export function ChapterReader({
                           e.stopPropagation();
                           handleThemeChange('gothic');
                         }}
-                        className={`w-full px-4 py-4 text-left flex items-center gap-3 hover:bg-gothic-dark transition-colors ${
+                        className={`w-full px-3 md:px-4 py-3 md:py-4 text-left flex items-center gap-2 md:gap-3 hover:bg-gothic-dark transition-colors ${
                           theme === 'gothic' ? 'bg-primary/10 border-l-4 border-primary' : ''
                         }`}
                       >
-                        <span className="text-3xl">🌲</span>
-                        <div className="flex-1">
-                          <div className={`font-lora font-semibold ${theme === 'gothic' ? 'text-primary' : 'text-text-light'}`}>
+                        <span className="text-2xl md:text-3xl">🌲</span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'gothic' ? 'text-primary' : 'text-text-light'}`}>
                             Gothic Green
                           </div>
-                          <div className="text-xs text-text-muted font-cormorant italic">
-                            Mystical forest aesthetic
+                          <div className="text-xs text-text-muted font-cormorant italic truncate">
+                            Mystical forest
                           </div>
                         </div>
                         {theme === 'gothic' && (
-                          <div className="text-xs text-primary font-cinzel">✓ Active</div>
+                          <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
                         )}
                       </button>
 
@@ -191,21 +193,21 @@ export function ChapterReader({
                           e.stopPropagation();
                           handleThemeChange('light');
                         }}
-                        className={`w-full px-4 py-4 text-left flex items-center gap-3 hover:bg-gothic-dark transition-colors ${
+                        className={`w-full px-3 md:px-4 py-3 md:py-4 text-left flex items-center gap-2 md:gap-3 hover:bg-gothic-dark transition-colors ${
                           theme === 'light' ? 'bg-primary/10 border-l-4 border-primary' : ''
                         }`}
                       >
-                        <span className="text-3xl">📖</span>
-                        <div className="flex-1">
-                          <div className={`font-lora font-semibold ${theme === 'light' ? 'text-primary' : 'text-text-light'}`}>
+                        <span className="text-2xl md:text-3xl">📖</span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'light' ? 'text-primary' : 'text-text-light'}`}>
                             Classic White
                           </div>
-                          <div className="text-xs text-text-muted font-cormorant italic">
-                            Traditional book experience
+                          <div className="text-xs text-text-muted font-cormorant italic truncate">
+                            Traditional book
                           </div>
                         </div>
                         {theme === 'light' && (
-                          <div className="text-xs text-primary font-cinzel">✓ Active</div>
+                          <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
                         )}
                       </button>
 
@@ -215,21 +217,21 @@ export function ChapterReader({
                           e.stopPropagation();
                           handleThemeChange('dark');
                         }}
-                        className={`w-full px-4 py-4 text-left flex items-center gap-3 hover:bg-gothic-dark transition-colors ${
+                        className={`w-full px-3 md:px-4 py-3 md:py-4 text-left flex items-center gap-2 md:gap-3 hover:bg-gothic-dark transition-colors ${
                           theme === 'dark' ? 'bg-primary/10 border-l-4 border-primary' : ''
                         }`}
                       >
-                        <span className="text-3xl">🌙</span>
-                        <div className="flex-1">
-                          <div className={`font-lora font-semibold ${theme === 'dark' ? 'text-primary' : 'text-text-light'}`}>
+                        <span className="text-2xl md:text-3xl">🌙</span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'dark' ? 'text-primary' : 'text-text-light'}`}>
                             Dark Mode
                           </div>
-                          <div className="text-xs text-text-muted font-cormorant italic">
-                            Easy on the eyes at night
+                          <div className="text-xs text-text-muted font-cormorant italic truncate">
+                            Night reading
                           </div>
                         </div>
                         {theme === 'dark' && (
-                          <div className="text-xs text-primary font-cinzel">✓ Active</div>
+                          <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
                         )}
                       </button>
                     </div>
@@ -241,16 +243,16 @@ export function ChapterReader({
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        <div className="mb-8 text-center">
-          <p className="text-text-muted font-cormorant italic text-lg">
+      {/* Main Content - Mobile optimized padding */}
+      <div className="max-w-4xl mx-auto px-3 md:px-4 py-6 md:py-8">
+        <div className="mb-6 md:mb-8 text-center">
+          <p className="text-text-muted font-cormorant italic text-base md:text-lg">
             {chapter.description}
           </p>
         </div>
 
-        {/* Chapter Content */}
-        <div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-8 mb-8 shadow-gothic">
+        {/* Chapter Content - Mobile optimized */}
+        <div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
           {chapter.content_type === 'pdf' && chapter.pdf_url ? (
             <div className="relative">
               {/* Email watermark for PDF */}
@@ -263,7 +265,7 @@ export function ChapterReader({
                     {[...Array(20)].map((_, i) => (
                       <div
                         key={i}
-                        className="text-white/[0.15] font-mono text-sm whitespace-nowrap px-8"
+                        className="text-white/[0.15] font-mono text-xs md:text-sm whitespace-nowrap px-8"
                         style={{
                           transform: `translateY(${(i % 2) * 100}px)`,
                         }}
@@ -275,27 +277,27 @@ export function ChapterReader({
                 </div>
               )}
 
-              {/* PDF Embed - NO DOWNLOAD */}
+              {/* PDF Embed - Responsive height */}
               <iframe
                 src={`${chapter.pdf_url}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
                 className="w-full border-0 rounded"
-                style={{ height: '80vh' }}
+                style={{ height: '60vh' }} // Reduced from 80vh for mobile
                 title={chapter.title}
                 onContextMenu={(e) => e.preventDefault()}
               />
 
-              {/* Protection message - NO DOWNLOAD BUTTON */}
-              <div className="mt-4 p-4 bg-accent-maroon/10 border border-accent-maroon/30 rounded-lg text-center">
-                <p className="text-text-muted font-lora text-sm flex items-center justify-center gap-2 flex-wrap">
-                  <span>🔒 This PDF is protected</span>
+              {/* Protection message */}
+              <div className="mt-4 p-3 md:p-4 bg-accent-maroon/10 border border-accent-maroon/30 rounded-lg text-center">
+                <p className="text-text-muted font-lora text-xs md:text-sm flex flex-wrap items-center justify-center gap-1 md:gap-2">
+                  <span>🔒 Protected</span>
                   {user?.email && (
                     <>
-                      <span>•</span>
-                      <span className="italic">{user.email}</span>
+                      <span className="hidden sm:inline">•</span>
+                      <span className="italic text-xs hidden sm:inline">{user.email}</span>
                     </>
                   )}
-                  <span>•</span>
-                  <span>View-only • No downloads allowed</span>
+                  <span className="hidden sm:inline">•</span>
+                  <span>View-only</span>
                 </p>
               </div>
             </div>
@@ -312,33 +314,35 @@ export function ChapterReader({
           )}
         </div>
 
-        {/* Navigation - Prev/Next Chapter */}
+        {/* Navigation - Mobile optimized */}
         {(hasPrevChapter || hasNextChapter) && (
-          <div className="flex justify-between items-center mb-12">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-8 md:mb-12">
             <button
               onClick={onPrevChapter}
               disabled={!hasPrevChapter}
-              className="flex items-center gap-2 px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel"
+              className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel text-sm md:text-base"
             >
-              <ChevronLeft size={20} />
-              Previous Chapter
+              <ChevronLeft size={18} className="md:w-5 md:h-5" />
+              <span className="hidden sm:inline">Previous Chapter</span>
+              <span className="sm:hidden">Previous</span>
             </button>
 
             <button
               onClick={onNextChapter}
               disabled={!hasNextChapter}
-              className="flex items-center gap-2 px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel"
+              className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel text-sm md:text-base"
             >
-              Next Chapter
-              <ChevronRight size={20} />
+              <span className="hidden sm:inline">Next Chapter</span>
+              <span className="sm:hidden">Next</span>
+              <ChevronRight size={18} className="md:w-5 md:h-5" />
             </button>
           </div>
         )}
 
-        <div className="ornamental-divider my-12"></div>
+        <div className="ornamental-divider my-8 md:my-12"></div>
 
-        <div className="mb-12">
-          <h2 className="text-2xl font-cinzel text-primary mb-6 text-center">
+        <div className="mb-8 md:mb-12">
+          <h2 className="text-xl md:text-2xl font-cinzel text-primary mb-4 md:mb-6 text-center">
             Chapter Discussion
           </h2>
           <CommentVoteSection 
@@ -348,11 +352,12 @@ export function ChapterReader({
         </div>
       </div>
 
-      <div className="border-t border-accent-maroon/30 py-8">
-        <div className="max-w-4xl mx-auto px-4 text-center">
+      {/* Footer - Mobile optimized */}
+      <div className="border-t border-accent-maroon/30 py-6 md:py-8">
+        <div className="max-w-4xl mx-auto px-3 md:px-4 text-center">
           <button
             onClick={onClose}
-            className="btn-gold px-8 py-3 rounded-lg font-cinzel"
+            className="btn-gold px-6 md:px-8 py-2 md:py-3 rounded-lg font-cinzel text-sm md:text-base w-full sm:w-auto"
           >
             Back to {bookTitle || 'Chapters'}
           </button>

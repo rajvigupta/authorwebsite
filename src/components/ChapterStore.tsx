@@ -6,6 +6,7 @@ import { BookView } from './BookViewer';
 import { StandaloneChapterView } from './chapterviewe';
 import { AuthorProfileSection } from './AuthorProfileSection';
 import type { Chapter, Purchase, Book as BookType, Profile } from '../lib/supabase';
+import { TypewriterText } from './TypewriterText';
 
 type ContentView = 'store' | 'chapter' | 'book';
 
@@ -144,7 +145,10 @@ export function ChapterStore() {
 
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-cinzel font-bold text-primary mb-4 text-gold-glow">
-            Stories by Alankrita - @memorycraver
+            <TypewriterText 
+              text="Stories by Alankrita - @memorycraver"
+              delay={80}
+            />
           </h1>
           <p className="text-lg font-cormorant italic text-text-muted">
             Dive into captivating tales (or something else)

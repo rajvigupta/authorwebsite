@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Mail, Lock, User, HelpCircle } from 'lucide-react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../contexts/AuthContext.tsx';
 import { ForgotPasswordModal } from './ForgotPasswordModal.tsx';
 
 type AuthModalProps = {

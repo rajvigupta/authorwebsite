@@ -320,54 +320,65 @@ const handleProfilePictureUpload = async (e: React.ChangeEvent<HTMLInputElement>
               </div>
 
               {/* Custom Links Editor */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <label className="block text-sm font-cinzel text-primary">
-                    Links
-                  </label>
-                  <button
-                    onClick={addLink}
-                    className="flex items-center gap-2 px-3 py-1 bg-green-600/20 text-green-400 hover:bg-green-600/30 rounded-lg transition-all text-sm font-lora"
-                  >
-                    <Plus size={16} />
-                    Add Link
-                  </button>
-                </div>
+              {/* Custom Links Editor */}
+<div>
+  <div className="flex items-center justify-between mb-3">
+    <label className="block text-sm font-cinzel text-primary">
+      Links
+    </label>
+    <button
+      onClick={addLink}
+      className="flex items-center gap-1 md:gap-2 px-2 md:px-3 py-1 bg-green-600/20 text-green-400 hover:bg-green-600/30 rounded-lg transition-all text-xs md:text-sm font-lora"
+    >
+      <Plus size={14} className="md:w-4 md:h-4" />
+      Add Link
+    </button>
+  </div>
 
-                <div className="space-y-3">
-                  {formData.custom_links.map((link, index) => (
-                    <div key={index} className="flex gap-2">
-                      <input
-                        type="text"
-                        value={link.label}
-                        onChange={(e) => updateLink(index, 'label', e.target.value)}
-                        placeholder="Label (e.g., Instagram)"
-                        className="w-1/3 px-3 py-2 bg-gothic-mid border border-accent-maroon/30 rounded-lg text-text-light font-lora text-sm focus:border-primary focus:ring-1 focus:ring-primary/50"
-                        maxLength={30}
-                      />
-                      <input
-                        type="url"
-                        value={link.url}
-                        onChange={(e) => updateLink(index, 'url', e.target.value)}
-                        placeholder="https://..."
-                        className="flex-1 px-3 py-2 bg-gothic-mid border border-accent-maroon/30 rounded-lg text-text-light font-lora text-sm focus:border-primary focus:ring-1 focus:ring-primary/50"
-                      />
-                      <button
-                        onClick={() => removeLink(index)}
-                        className="p-2 text-red-400 hover:bg-red-600/20 rounded-lg transition-all"
-                      >
-                        <Trash2 size={18} />
-                      </button>
-                    </div>
-                  ))}
+  <div className="space-y-3">
+    {formData.custom_links.map((link, index) => (
+      <div key={index} className="space-y-2 md:space-y-0 md:flex md:gap-2">
+        {/* Label Input - Full width on mobile */}
+        <div className="w-full md:w-1/3">
+          <input
+            type="text"
+            value={link.label}
+            onChange={(e) => updateLink(index, 'label', e.target.value)}
+            placeholder="Label (e.g., Instagram)"
+            className="w-full px-3 py-2 bg-gothic-mid border border-accent-maroon/30 rounded-lg text-text-light font-lora text-sm focus:border-primary focus:ring-1 focus:ring-primary/50"
+            maxLength={30}
+          />
+        </div>
 
-                  {formData.custom_links.length === 0 && (
-                    <p className="text-sm text-text-muted italic font-lora">
-                      No links added yet. Click "Add Link" to add your social media, website, or any other links.
-                    </p>
-                  )}
-                </div>
-              </div>
+        {/* URL Input - Full width on mobile */}
+        <div className="flex-1 flex gap-2">
+          <input
+            type="url"
+            value={link.url}
+            onChange={(e) => updateLink(index, 'url', e.target.value)}
+            placeholder="https://..."
+            className="flex-1 px-3 py-2 bg-gothic-mid border border-accent-maroon/30 rounded-lg text-text-light font-lora text-sm focus:border-primary focus:ring-1 focus:ring-primary/50"
+          />
+          <button
+            onClick={() => removeLink(index)}
+            className="p-2 text-red-400 hover:bg-red-600/20 rounded-lg transition-all flex-shrink-0"
+            aria-label="Remove link"
+          >
+            <Trash2 size={18} />
+          </button>
+        </div>
+      </div>
+    ))}
+
+    {formData.custom_links.length === 0 && (
+      <p className="text-sm text-text-muted italic font-lora">
+        No links added yet. Click "Add Link" to add your social media, website, or any other links.
+      </p>
+    )}
+  </div>
+</div>
+              
+
 
               {/* Save/Cancel Buttons */}
               <div className="flex gap-3 pt-4">

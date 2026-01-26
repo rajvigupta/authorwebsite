@@ -1,13 +1,16 @@
 import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Header } from './components/Header';
 import { Footer } from './components/footer';
 import { ChapterStore } from './components/ChapterStore';
 import { AuthorDashboard } from './components/AuthorDashboard';
+import { BookView } from './components/BookViewer';
+import { StandaloneChapterView } from './components/chapterviewe';
 import { AuthModal } from './components/AuthModal';
+import { FloatingPages } from './components/FloatingPages';
 
 function AppContent() {
-  const [showDashboard, setShowDashboard] = useState(false);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { loading, profile } = useAuth();
 
@@ -23,18 +26,37 @@ function AppContent() {
   }
 
   const isAuthor = profile?.role === 'author';
-  const shouldShowDashboard = showDashboard && isAuthor;
 
   return (
     <div className="min-h-screen bg-gothic-darkest flex flex-col">
+      <FloatingPages />
+      
       <Header
-        showDashboard={shouldShowDashboard}
-        onToggleDashboard={() => setShowDashboard(!showDashboard)}
         onAuthClick={() => setShowAuthModal(true)}
       />
 
       <main className="flex-1">
-        {shouldShowDashboard ? <AuthorDashboard /> : <ChapterStore />}
+        <Routes>
+          {/* Main Store */}
+          <Route path="/" element={<ChapterStore />} />
+          
+          {/* Book View */}
+          <Route path="/book/:bookId" element={<BookView />} />
+          
+          {/* Standalone Chapter View */}
+          <Route path="/chapter/:chapterId" element={<StandaloneChapterView />} />
+          
+          {/* Author Dashboard - Protected Route */}
+          <Route 
+            path="/dashboard" 
+            element={
+              isAuthor ? <AuthorDashboard /> : <Navigate to="/" replace />
+            } 
+          />
+          
+          {/* Catch all - redirect to home */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       <Footer />
@@ -42,17 +64,16 @@ function AppContent() {
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
-
 }
+
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </BrowserRouter>
   );
 }
 
 export default App;
-
-//import { ThemeProvider } from './contexts/ThemeContext.tsx';
-

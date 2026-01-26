@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, ShoppingCart, BookOpen } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
@@ -12,12 +13,10 @@ declare global {
   }
 }
 
-type BookViewProps = {
-  bookId: string;
-  onBack: () => void;
-};
-
-export function BookView({ bookId, onBack }: BookViewProps) {
+export function BookView() {
+  const { bookId } = useParams<{ bookId: string }>();
+  const navigate = useNavigate();
+  
   const [book, setBook] = useState<BookType | null>(null);
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
@@ -30,10 +29,14 @@ export function BookView({ bookId, onBack }: BookViewProps) {
   const { user, profile } = useAuth();
 
   useEffect(() => {
-    loadBookData();
+    if (bookId) {
+      loadBookData();
+    }
   }, [bookId]);
 
   const loadBookData = async () => {
+    if (!bookId) return;
+
     try {
       const { data: bookData, error: bookError } = await supabase
         .from('books')
@@ -44,7 +47,7 @@ export function BookView({ bookId, onBack }: BookViewProps) {
       if (bookError) throw bookError;
       if (!bookData) {
         alert('Book not found');
-        onBack();
+        navigate('/');
         return;
       }
 
@@ -71,34 +74,31 @@ export function BookView({ bookId, onBack }: BookViewProps) {
   };
 
   const loadPurchases = async () => {
-  if (!user) return;
-  
-  try {
-    const { data: purchaseData, error } = await supabase
-      .from('purchases')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('payment_status', 'completed')
-      .order('purchased_at', { ascending: false }); // ✅ Order by latest first
-
-    if (error) {
-      console.error('Error loading purchases:', error);
-      throw error;
-    }
+    if (!user) return;
     
-    console.log('Loaded purchases:', purchaseData); // ✅ Debug log
-    setPurchases(purchaseData || []);
-  } catch (error) {
-    console.error('Error loading purchases:', error);
-  }
-};
+    try {
+      const { data: purchaseData, error } = await supabase
+        .from('purchases')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('payment_status', 'completed')
+        .order('purchased_at', { ascending: false });
 
-
+      if (error) {
+        console.error('Error loading purchases:', error);
+        throw error;
+      }
+      
+      console.log('Loaded purchases:', purchaseData);
+      setPurchases(purchaseData || []);
+    } catch (error) {
+      console.error('Error loading purchases:', error);
+    }
+  };
 
   const isChapterPurchased = (chapterId: string) => {
     if (profile?.role === 'author') return true;
 
-    // Check if chapter is free
     const chapter = chapters.find(ch => ch.id === chapterId);
     if (chapter?.is_free) return true;
     return purchases.some(p => p.chapter_id === chapterId);
@@ -107,7 +107,6 @@ export function BookView({ bookId, onBack }: BookViewProps) {
   const unpurchasedChapters = chapters.filter(ch => !isChapterPurchased(ch.id));
   const totalRemainingCost = unpurchasedChapters.reduce((sum, ch) => sum + ch.price, 0);
 
-  // ✅ FIXED: Single Chapter Purchase
   const handlePurchaseChapter = async (chapter: Chapter) => {
     if (!user) {
       alert('Please sign in to purchase');
@@ -117,13 +116,11 @@ export function BookView({ bookId, onBack }: BookViewProps) {
     setPurchasing(true);
 
     try {
-      // Get Supabase session token
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) {
         throw new Error('No active session');
       }
 
-      // Create order via edge function
       const orderResponse = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-order`,
         {
@@ -140,33 +137,28 @@ export function BookView({ bookId, onBack }: BookViewProps) {
         }
       );
 
-      // ✅ Handle "already purchased" error
-    if (!orderResponse.ok) {
-      const errorData = await orderResponse.json();
-      
-      if (errorData.alreadyOwned) {
-        // Chapter is already purchased, just reload and open
-        await loadBookData();
-        const index = chapters.findIndex(ch => ch.id === chapter.id);
-        if (index >= 0) {
-          setCurrentChapterIndex(index);
-          setReadingChapterId(chapter.id);
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        
+        if (errorData.alreadyOwned) {
+          await loadBookData();
+          const index = chapters.findIndex(ch => ch.id === chapter.id);
+          if (index >= 0) {
+            setCurrentChapterIndex(index);
+            setReadingChapterId(chapter.id);
+          }
+          return;
         }
-        return;
+        
+        throw new Error(errorData.error || 'Failed to create order');
       }
-      
-      throw new Error(errorData.error || 'Failed to create order');
-    }
 
-    const orderData = await orderResponse.json();
+      const orderData = await orderResponse.json();
 
-    if (!orderData.orderId) {
-      throw new Error('Failed to create order');
-    }
+      if (!orderData.orderId) {
+        throw new Error('Failed to create order');
+      }
 
-      
-
-      // Open Razorpay modal
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: chapter.price * 100,
@@ -176,7 +168,6 @@ export function BookView({ bookId, onBack }: BookViewProps) {
         order_id: orderData.orderId,
         handler: async function (response: any) {
           try {
-            // Verify payment via edge function
             const verifyResponse = await fetch(
               `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-payment`,
               {
@@ -197,161 +188,157 @@ export function BookView({ bookId, onBack }: BookViewProps) {
 
             const verifyData = await verifyResponse.json();
 
-          if (verifyData.success) {
-            alert('Payment successful! Chapter unlocked.');
-            await loadBookData(); // ✅ Reload purchases
-          } else {
-            alert('Payment verification failed. Please contact support.');
-          }
-        } catch (error) {
-          console.error('Verification error:', error);
-          alert('Payment verification failed. Please contact support.');
-        } finally {
-          setPurchasing(false);
-        }
-      },
-      prefill: {
-        name: profile?.full_name || '',
-        email: user?.email || '',
-      },
-      theme: {
-        color: '#d4af37',
-      },
-      modal: {
-        ondismiss: function() {
-          setPurchasing(false);
-        }
-      }
-    };
-
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (error: any) {
-    console.error('Purchase error:', error);
-    alert(error.message || 'Failed to initiate purchase. Please try again.');
-    setPurchasing(false);
-  }
-};
-
- const handleBuyAllChapters = async () => {
-  if (!user || unpurchasedChapters.length === 0) {
-    alert('No chapters to purchase');
-    return;
-  }
-
-  setPurchasing(true);
-
-  try {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      throw new Error('No active session');
-    }
-
-    const chapterIds = unpurchasedChapters.map(ch => ch.id);
-
-    // Create bulk order
-    const orderResponse = await fetch(
-      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-bulk-order`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${session.access_token}`,
-          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-        },
-        body: JSON.stringify({
-          chapterIds: chapterIds,
-          totalAmount: totalRemainingCost,
-          bookId: bookId,
-        }),
-      }
-    );
-
-    // ✅ Handle "already purchased" error
-    if (!orderResponse.ok) {
-      const errorData = await orderResponse.json();
-      
-      if (errorData.alreadyOwned) {
-        // Some chapters already purchased, reload and continue
-        alert('Some chapters are already purchased. Refreshing...');
-        await loadBookData();
-        return;
-      }
-      
-      throw new Error(errorData.error || 'Failed to create bulk order');
-    }
-
-    const orderData = await orderResponse.json();
-
-    if (!orderData.orderId) {
-      throw new Error('Failed to create bulk order');
-    }
-
-    // Open Razorpay modal
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: totalRemainingCost * 100,
-      currency: 'INR',
-      name: 'MemoryCraver',
-      description: `${book?.title} - ${unpurchasedChapters.length} chapters`,
-      order_id: orderData.orderId,
-      handler: async function (response: any) {
-        try {
-          const verifyResponse = await fetch(
-            `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-bulk-payment`,
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${session.access_token}`,
-                'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
-              },
-              body: JSON.stringify({
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-                chapterIds: chapterIds,
-              }),
+            if (verifyData.success) {
+              alert('Payment successful! Chapter unlocked.');
+              await loadBookData();
+            } else {
+              alert('Payment verification failed. Please contact support.');
             }
-          );
-
-          const verifyData = await verifyResponse.json();
-
-          if (verifyData.success) {
-            alert(`Payment successful! ${verifyData.chaptersUnlocked} chapters unlocked.`);
-            await loadBookData(); // ✅ Reload to refresh purchases
-          } else {
+          } catch (error) {
+            console.error('Verification error:', error);
             alert('Payment verification failed. Please contact support.');
+          } finally {
+            setPurchasing(false);
           }
-        } catch (error) {
-          console.error('Verification error:', error);
-          alert('Payment verification failed. Please contact support.');
-        } finally {
-          setPurchasing(false);
+        },
+        prefill: {
+          name: profile?.full_name || '',
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#d4af37',
+        },
+        modal: {
+          ondismiss: function() {
+            setPurchasing(false);
+          }
         }
-      },
-      prefill: {
-        name: profile?.full_name || '',
-        email: user?.email || '',
-      },
-      theme: {
-        color: '#d4af37',
-      },
-      modal: {
-        ondismiss: function() {
-          setPurchasing(false);
-        }
-      }
-    };
+      };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (error: any) {
-    console.error('Bulk purchase error:', error);
-    alert(error.message || 'Failed to initiate bulk purchase. Please try again.');
-    setPurchasing(false);
-  }
-};
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      console.error('Purchase error:', error);
+      alert(error.message || 'Failed to initiate purchase. Please try again.');
+      setPurchasing(false);
+    }
+  };
+
+  const handleBuyAllChapters = async () => {
+    if (!user || unpurchasedChapters.length === 0) {
+      alert('No chapters to purchase');
+      return;
+    }
+
+    setPurchasing(true);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('No active session');
+      }
+
+      const chapterIds = unpurchasedChapters.map(ch => ch.id);
+
+      const orderResponse = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-bulk-order`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+          },
+          body: JSON.stringify({
+            chapterIds: chapterIds,
+            totalAmount: totalRemainingCost,
+            bookId: bookId,
+          }),
+        }
+      );
+
+      if (!orderResponse.ok) {
+        const errorData = await orderResponse.json();
+        
+        if (errorData.alreadyOwned) {
+          alert('Some chapters are already purchased. Refreshing...');
+          await loadBookData();
+          return;
+        }
+        
+        throw new Error(errorData.error || 'Failed to create bulk order');
+      }
+
+      const orderData = await orderResponse.json();
+
+      if (!orderData.orderId) {
+        throw new Error('Failed to create bulk order');
+      }
+
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        amount: totalRemainingCost * 100,
+        currency: 'INR',
+        name: 'MemoryCraver',
+        description: `${book?.title} - ${unpurchasedChapters.length} chapters`,
+        order_id: orderData.orderId,
+        handler: async function (response: any) {
+          try {
+            const verifyResponse = await fetch(
+              `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-bulk-payment`,
+              {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${session.access_token}`,
+                  'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+                },
+                body: JSON.stringify({
+                  razorpayOrderId: response.razorpay_order_id,
+                  razorpayPaymentId: response.razorpay_payment_id,
+                  razorpaySignature: response.razorpay_signature,
+                  chapterIds: chapterIds,
+                }),
+              }
+            );
+
+            const verifyData = await verifyResponse.json();
+
+            if (verifyData.success) {
+              alert(`Payment successful! ${verifyData.chaptersUnlocked} chapters unlocked.`);
+              await loadBookData();
+            } else {
+              alert('Payment verification failed. Please contact support.');
+            }
+          } catch (error) {
+            console.error('Verification error:', error);
+            alert('Payment verification failed. Please contact support.');
+          } finally {
+            setPurchasing(false);
+          }
+        },
+        prefill: {
+          name: profile?.full_name || '',
+          email: user?.email || '',
+        },
+        theme: {
+          color: '#d4af37',
+        },
+        modal: {
+          ondismiss: function() {
+            setPurchasing(false);
+          }
+        }
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error: any) {
+      console.error('Bulk purchase error:', error);
+      alert(error.message || 'Failed to initiate bulk purchase. Please try again.');
+      setPurchasing(false);
+    }
+  };
 
   const handleReadChapter = (chapter: Chapter, index: number) => {
     if (!isChapterPurchased(chapter.id) && profile?.role !== 'author') {
@@ -412,11 +399,11 @@ export function BookView({ bookId, onBack }: BookViewProps) {
       <div className="sticky top-0 z-10 bg-gothic-dark/95 backdrop-blur-sm border-b border-accent-maroon/30">
         <div className="max-w-7xl mx-auto px-4 py-3">
           <button
-            onClick={onBack}
+            onClick={() => navigate(-1)}
             className="flex items-center gap-2 text-text-muted hover:text-primary transition-colors"
           >
             <ArrowLeft size={20} />
-            <span className="font-lora">Back to Store</span>
+            <span className="font-lora">Back</span>
           </button>
         </div>
       </div>
@@ -522,16 +509,14 @@ export function BookView({ bookId, onBack }: BookViewProps) {
                     className="bg-gothic-mid p-4 rounded-lg border border-accent-maroon/20 hover:border-primary/50 transition-all cursor-pointer group"
                   >
                     <div className="flex items-center gap-4">
-          {/* ✅ ADD THIS NEW SECTION - Chapter Cover */}
-          {chapter.cover_image_url && (
-            <img
-              src={chapter.cover_image_url}
-              alt={chapter.title}
-              className="w-20 h-28 object-cover rounded border-2 border-accent-maroon/30 flex-shrink-0"
-            />
-          )}
-          
-          
+                      {chapter.cover_image_url && (
+                        <img
+                          src={chapter.cover_image_url}
+                          alt={chapter.title}
+                          className="w-20 h-28 object-cover rounded border-2 border-accent-maroon/30 flex-shrink-0"
+                        />
+                      )}
+                      
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-3 mb-2">
                           <span className="text-primary font-cinzel text-sm">
@@ -579,7 +564,7 @@ export function BookView({ bookId, onBack }: BookViewProps) {
         <div className="bg-gothic-mid rounded-lg p-6 border border-accent-maroon/20">
           <h2 className="text-xl font-cinzel text-primary mb-4">Discussion</h2>
           <div className="max-h-96 overflow-y-auto">
-            <BookCommentSection bookId={bookId} />
+            <BookCommentSection bookId={bookId!} />
           </div>
         </div>
       </div>

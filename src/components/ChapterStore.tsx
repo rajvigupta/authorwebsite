@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BookOpen, Lock, Book, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { BookView } from './BookViewer';
-import { StandaloneChapterView } from './chapterviewe';
 import { AuthorProfileSection } from './AuthorProfileSection';
 import type { Chapter, Purchase, Book as BookType, Profile } from '../lib/supabase';
 import { TypewriterText } from './TypewriterText';
-
-type ContentView = 'store' | 'chapter' | 'book';
 
 export function ChapterStore() {
   const [books, setBooks] = useState<BookType[]>([]);
@@ -17,10 +14,8 @@ export function ChapterStore() {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [authorProfile, setAuthorProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState<ContentView>('store');
-  const [selectedChapter, setSelectedChapter] = useState<string | null>(null);
-  const [selectedBook, setSelectedBook] = useState<string | null>(null);
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchContent();
@@ -96,22 +91,6 @@ export function ChapterStore() {
     return purchases.some((p) => p.chapter_id === chapterId);
   };
 
-  const handleViewChapter = (chapterId: string) => {
-    setSelectedChapter(chapterId);
-    setView('chapter');
-  };
-
-  const handleViewBook = (bookId: string) => {
-    setSelectedBook(bookId);
-    setView('book');
-  };
-
-  const handleCloseView = () => {
-    setView('store');
-    setSelectedChapter(null);
-    setSelectedBook(null);
-  };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gothic-darkest flex items-center justify-center">
@@ -120,16 +99,6 @@ export function ChapterStore() {
     );
   }
 
-  // Full page views
-  if (view === 'book' && selectedBook) {
-    return <BookView bookId={selectedBook} onBack={handleCloseView} />;
-  }
-
-  if (view === 'chapter' && selectedChapter) {
-    return <StandaloneChapterView chapterId={selectedChapter} onBack={handleCloseView} />;
-  }
-
-  // Store page
   return (
     <div className="min-h-screen bg-gothic-gradient">
       <div className="max-w-7xl mx-auto px-4 py-8">
@@ -168,7 +137,7 @@ export function ChapterStore() {
                 return (
                   <div
                     key={book.id}
-                    onClick={() => handleViewBook(book.id)}
+                    onClick={() => navigate(`/book/${book.id}`)}
                     className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-[1.02] transition-transform"
                   >
                     {book.cover_image_url ? (
@@ -230,7 +199,7 @@ export function ChapterStore() {
                 return (
                   <div
                     key={chapter.id}
-                    onClick={() => handleViewChapter(chapter.id)}
+                    onClick={() => navigate(`/chapter/${chapter.id}`)}
                     className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-[1.02] transition-transform"
                   >
                     {chapter.cover_image_url ? (
@@ -252,18 +221,14 @@ export function ChapterStore() {
                         </span>
 
                         {chapter.is_free ? (
-  <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-bold">
-    FREE
-  </span>
-) : purchased ? (
-  <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">
-    Owned
-  </span>
-) : null}
-
-                        
-
-
+                          <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-bold">
+                            FREE
+                          </span>
+                        ) : purchased ? (
+                          <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">
+                            Owned
+                          </span>
+                        ) : null}
                       </div>
 
                       <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
@@ -275,19 +240,15 @@ export function ChapterStore() {
                       </p>
 
                       <div className="flex items-center justify-between">
-
                         {chapter.is_free ? (
-  <span className="text-2xl font-bold text-green-600 dark:text-green-400">
-    FREE
-  </span>
-) : (
-  <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
-    ₹{chapter.price}
-  </span>
-)}
-
-                          
-
+                          <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                            FREE
+                          </span>
+                        ) : (
+                          <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                            ₹{chapter.price}
+                          </span>
+                        )}
 
                         <span className="text-sm text-gray-500 dark:text-gray-400">
                           {chapter.content_type === 'pdf' ? 'PDF' : 'Text'} →

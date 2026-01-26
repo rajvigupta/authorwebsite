@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Mail, Lock, HelpCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from './Toast';
 
 type ForgotPasswordModalProps = {
   isOpen: boolean;
@@ -17,6 +18,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { getSecurityQuestion, verifySecurityAnswer, resetPassword } = useAuth();
+  const toast = useToast();
 
   if (!isOpen) return null;
 
@@ -29,13 +31,16 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
       const question = await getSecurityQuestion(email);
       if (!question) {
         setError('No account found with this email or security question not set');
+        toast.error('No account found with this email');
         setLoading(false);
         return;
       }
       setSecurityQuestion(question);
       setStep('question');
+      toast.info('Security question loaded. Please answer it to continue.');
     } catch (err: any) {
       setError(err.message || 'Failed to retrieve security question');
+      toast.error(err.message || 'Failed to retrieve security question');
     } finally {
       setLoading(false);
     }
@@ -50,12 +55,15 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
       const isValid = await verifySecurityAnswer(email, securityAnswer);
       if (!isValid) {
         setError('Incorrect answer. Please try again.');
+        toast.error('Incorrect security answer. Please try again.');
         setLoading(false);
         return;
       }
       setStep('reset');
+      toast.success('✅ Security answer verified! You can now reset your password.');
     } catch (err: any) {
       setError(err.message || 'Failed to verify answer');
+      toast.error(err.message || 'Failed to verify answer');
     } finally {
       setLoading(false);
     }
@@ -67,11 +75,13 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
 
     if (newPassword !== confirmPassword) {
       setError('Passwords do not match');
+      toast.error('Passwords do not match');
       return;
     }
 
     if (newPassword.length < 6) {
       setError('Password must be at least 6 characters');
+      toast.error('Password must be at least 6 characters');
       return;
     }
 
@@ -79,10 +89,12 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
 
     try {
       await resetPassword(email, securityAnswer, newPassword);
-      alert('Password reset successful! You can now sign in with your new password.');
+      toast.success('🎉 Password reset successful! You can now sign in with your new password.', 8000);
+      toast.info('Please sign in using your new password.', 6000);
       handleClose();
     } catch (err: any) {
       setError(err.message || 'Failed to reset password');
+      toast.error(err.message || 'Failed to reset password');
     } finally {
       setLoading(false);
     }
@@ -103,13 +115,11 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
     <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
       <div className="bg-gradient-to-br from-forest-mid to-forest-dark rounded-2xl shadow-2xl max-w-md w-full p-8 relative border-2 border-gold/30">
         
-        {/* Decorative corners */}
         <div className="corner-ornament corner-ornament-tl"></div>
         <div className="corner-ornament corner-ornament-tr"></div>
         <div className="corner-ornament corner-ornament-bl"></div>
         <div className="corner-ornament corner-ornament-br"></div>
 
-        {/* Top glow */}
         <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50"></div>
 
         <button
@@ -138,7 +148,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
         {step === 'email' && (
           <form onSubmit={handleEmailSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-black mb-2 font-lora">
+              <label className="block text-sm font-medium text-cream mb-2 font-lora">
                 Email Address
               </label>
               <div className="relative">
@@ -149,7 +159,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-cream placeholder-black transition-all font-lora"
+                  className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-black transition-all font-lora"
                   placeholder="you@example.com"
                   required
                 />
@@ -236,7 +246,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
                   <Lock size={18} className="text-green-fresh" />
                 </div>
                 <input
-                  type="text"
+                  type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
@@ -256,7 +266,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
                   <Lock size={18} className="text-green-fresh" />
                 </div>
                 <input
-                  type="text"
+                  type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
@@ -295,7 +305,6 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
           </button>
         </div>
 
-        {/* Bottom glow */}
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50"></div>
       </div>
     </div>

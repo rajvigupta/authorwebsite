@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { RichTextEditor } from './RichTextEditor';
 import type { Chapter, Book } from '../lib/supabase';
+import { useToast } from './Toast';
 
 type ChapterEditorProps = {
   bookId?: string | null;
@@ -32,6 +33,7 @@ export function ChapterEditor({ bookId, editingChapter, onSave, onCancel }: Chap
   const [uploading, setUploading] = useState(false);
   const [autoNumbering, setAutoNumbering] = useState(true);
   const [suggestedNumber, setSuggestedNumber] = useState<number>(1);
+  const toast = useToast();
 
   // Fetch next chapter number on mount
   useEffect(() => {
@@ -78,109 +80,111 @@ export function ChapterEditor({ bookId, editingChapter, onSave, onCancel }: Chap
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUploading(true);
+   const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setUploading(true);
 
-    try {
-      let pdfUrl = editingChapter?.pdf_url || null;
-      let coverImageUrl = editingChapter?.cover_image_url || null;
+  try {
+    let pdfUrl = editingChapter?.pdf_url || null;
+    let coverImageUrl = editingChapter?.cover_image_url || null;
 
-      // Upload PDF if provided
-      if (contentType === 'pdf' && pdfFile) {
-        const fileExt = pdfFile.name.split('.').pop();
-        const filePath = `${profile?.id}/${Date.now()}.${fileExt}`;
+    if (contentType === 'pdf' && pdfFile) {
+      toast.info('Uploading PDF...'); // ✅ NEW
+      
+      const fileExt = pdfFile.name.split('.').pop();
+      const filePath = `${profile?.id}/${Date.now()}.${fileExt}`;
 
-        const { error: uploadError, data: uploadData } = await supabase.storage
-          .from('chapter-pdfs')
-          .upload(filePath, pdfFile, {
-            upsert: true,
-            contentType: pdfFile.type || 'application/pdf'
-          });
+      const { error: uploadError, data: uploadData } = await supabase.storage
+        .from('chapter-pdfs')
+        .upload(filePath, pdfFile, {
+          upsert: true,
+          contentType: pdfFile.type || 'application/pdf'
+        });
 
-        if (uploadError) throw uploadError;
-        if (!uploadData) throw new Error('Upload failed - no data returned');
+      if (uploadError) throw uploadError;
+      if (!uploadData) throw new Error('Upload failed - no data returned');
 
-        const { data: urlData } = supabase.storage
-          .from('chapter-pdfs')
-          .getPublicUrl(filePath);
+      const { data: urlData } = supabase.storage
+        .from('chapter-pdfs')
+        .getPublicUrl(filePath);
 
-        if (!urlData?.publicUrl) throw new Error('Failed to get PDF public URL');
-        pdfUrl = urlData.publicUrl;
-      }
-
-      // Upload cover image if provided
-      if (coverImage) {
-        const fileExt = coverImage.name.split('.').pop();
-        const filePath = `${profile?.id}/${Date.now()}.${fileExt}`;
-
-        const { error: uploadError } = await supabase.storage
-          .from('chapter-covers')
-          .upload(filePath, coverImage, {
-            upsert: true,
-            contentType: coverImage.type
-          });
-
-        if (uploadError) throw uploadError;
-
-        const { data } = supabase.storage.from('chapter-covers').getPublicUrl(filePath);
-        coverImageUrl = data.publicUrl;
-      }
-
-      const chapterData = {
-        book_id: bookId || null,
-        title: formData.title,
-        description: formData.description || null, // Allow empty description for book chapters
-        price: parseFloat(formData.price),
-        is_free: formData.is_free,
-        chapter_number: parseInt(formData.chapter_number),
-        content_type: contentType,
-        pdf_url: contentType === 'pdf' ? pdfUrl : null,
-        rich_content: contentType === 'text' ? richContent : null,
-        cover_image_url: coverImageUrl,
-        is_published: formData.is_published,
-      };
-
-      // Validate required fields
-      if (contentType === 'pdf' && !pdfUrl && !editingChapter) {
-        alert('Please upload a PDF file');
-        setUploading(false);
-        return;
-      }
-
-      if (contentType === 'text' && (!richContent || richContent.length === 0)) {
-        alert('Please add some content');
-        setUploading(false);
-        return;
-      }
-
-      // For standalone chapters, description is required
-      if (!bookId && !formData.description.trim()) {
-        alert('Description is required for standalone chapters');
-        setUploading(false);
-        return;
-      }
-
-      if (editingChapter) {
-        const { error } = await supabase
-          .from('chapters')
-          .update(chapterData)
-          .eq('id', editingChapter.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('chapters').insert([chapterData]);
-        if (error) throw error;
-      }
-
-      onSave();
-    } catch (error) {
-      console.error('Error saving chapter:', error);
-      alert('Failed to save chapter');
-    } finally {
-      setUploading(false);
+      if (!urlData?.publicUrl) throw new Error('Failed to get PDF public URL');
+      pdfUrl = urlData.publicUrl;
     }
-  };
+
+    if (coverImage) {
+      toast.info('Uploading cover image...'); // ✅ NEW
+      
+      const fileExt = coverImage.name.split('.').pop();
+      const filePath = `${profile?.id}/${Date.now()}.${fileExt}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('chapter-covers')
+        .upload(filePath, coverImage, {
+          upsert: true,
+          contentType: coverImage.type
+        });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('chapter-covers').getPublicUrl(filePath);
+      coverImageUrl = data.publicUrl;
+    }
+
+    const chapterData = {
+      book_id: bookId || null,
+      title: formData.title,
+      description: formData.description || null,
+      price: parseFloat(formData.price),
+      is_free: formData.is_free,
+      chapter_number: parseInt(formData.chapter_number),
+      content_type: contentType,
+      pdf_url: contentType === 'pdf' ? pdfUrl : null,
+      rich_content: contentType === 'text' ? richContent : null,
+      cover_image_url: coverImageUrl,
+      is_published: formData.is_published,
+    };
+
+    if (contentType === 'pdf' && !pdfUrl && !editingChapter) {
+      toast.error('Please upload a PDF file'); // ✅ NEW
+      setUploading(false);
+      return;
+    }
+
+    if (contentType === 'text' && (!richContent || richContent.length === 0)) {
+      toast.error('Please add some content'); // ✅ NEW
+      setUploading(false);
+      return;
+    }
+
+    if (!bookId && !formData.description.trim()) {
+      toast.error('Description is required for standalone chapters'); // ✅ NEW
+      setUploading(false);
+      return;
+    }
+
+    if (editingChapter) {
+      const { error } = await supabase
+        .from('chapters')
+        .update(chapterData)
+        .eq('id', editingChapter.id);
+
+      if (error) throw error;
+      toast.success('✏️ Chapter updated successfully!'); // ✅ NEW
+    } else {
+      const { error } = await supabase.from('chapters').insert([chapterData]);
+      if (error) throw error;
+      toast.success('🎉 Chapter created successfully!'); // ✅ NEW
+    }
+
+    onSave();
+  } catch (error) {
+    console.error('Error saving chapter:', error);
+    toast.error('Failed to save chapter'); // ✅ NEW
+  } finally {
+    setUploading(false);
+  }
+};
 
   return (
     <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg p-6 space-y-6">

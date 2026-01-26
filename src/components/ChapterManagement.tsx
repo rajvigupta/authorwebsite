@@ -3,12 +3,14 @@ import { FileText, Plus, Edit2, Trash2, Eye, EyeOff } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { ChapterEditor } from './ChapterEditor';
 import type { Chapter } from '../lib/supabase';
+import { useToast } from './Toast';
 
 export function ChapterManagement() {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
   const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
+  const toast = useToast()
 
   useEffect(() => {
     loadChapters();
@@ -38,10 +40,11 @@ export function ChapterManagement() {
       const { error } = await supabase.from('chapters').delete().eq('id', chapterId);
 
       if (error) throw error;
+       toast.success('🗑️ Chapter deleted successfully');
       loadChapters();
     } catch (error) {
       console.error('Error deleting chapter:', error);
-      alert('Failed to delete chapter');
+      toast.error('Failed to delete chapter');
     }
   };
 
@@ -64,10 +67,18 @@ export function ChapterManagement() {
         .eq('id', chapter.id);
 
       if (error) throw error;
+
+      if (chapter.is_published) {
+      toast.info(`Chapter ${chapter.chapter_number} unpublished`); // ✅ NEW
+    } else {
+      toast.success(`🚀 Chapter ${chapter.chapter_number} is now published!`); // ✅ NEW
+    }
+
+
       loadChapters();
     } catch (error) {
       console.error('Error updating chapter:', error);
-      alert('Failed to update chapter');
+      toast.error('Failed to update chapter');
     }
   };
 

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MessageSquare, ThumbsUp, Send, Trash2 } from 'lucide-react';
 import { supabase, Comment, Vote, Profile } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from './Toast';
 
 type CommentWithProfile = Comment & {
   profile: Profile;
@@ -19,6 +20,8 @@ export function CommentVoteSection({ chapterId, isPurchased }: CommentVoteSectio
   const [hasVoted, setHasVoted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user, profile } = useAuth();
+  const toast = useToast();
+
 
   useEffect(() => {
     if (user) {
@@ -59,78 +62,82 @@ export function CommentVoteSection({ chapterId, isPurchased }: CommentVoteSectio
     }
   };
 
-  const handleComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim() || !isPurchased) return;
+const handleComment = async (e: React.FormEvent) => {
+  e.preventDefault();
+  if (!newComment.trim() || !isPurchased) return;
 
-    setLoading(true);
-    try {
-      const { error } = await supabase.from('comments').insert([
+  setLoading(true);
+  try {
+    const { error } = await supabase.from('comments').insert([
+      {
+        chapter_id: chapterId,
+        book_id: null,
+        user_id: user!.id,
+        content: newComment,
+      },
+    ]);
+
+    if (error) throw error;
+    setNewComment('');
+    toast.success('💬 Comment posted successfully!'); // ✅ NEW
+    fetchComments();
+  } catch (error) {
+    console.error('Error posting comment:', error);
+    toast.error('Failed to post comment'); // ✅ NEW
+  } finally {
+    setLoading(false);
+  }
+};
+
+const handleVote = async () => {
+  if (!isPurchased) return;
+
+  setLoading(true);
+  try {
+    if (hasVoted) {
+      const { error } = await supabase
+        .from('votes')
+        .delete()
+        .eq('chapter_id', chapterId)
+        .eq('user_id', user!.id)
+        .is('book_id', null);
+
+      if (error) throw error;
+      toast.info('Vote removed'); // ✅ NEW
+    } else {
+      const { error } = await supabase.from('votes').insert([
         {
           chapter_id: chapterId,
           book_id: null,
           user_id: user!.id,
-          content: newComment,
         },
       ]);
 
       if (error) throw error;
-      setNewComment('');
-      fetchComments();
-    } catch (error) {
-      console.error('Error posting comment:', error);
-      alert('Failed to post comment');
-    } finally {
-      setLoading(false);
+      toast.success('👍 Voted!'); // ✅ NEW
     }
-  };
+    fetchVotes();
+  } catch (error) {
+    console.error('Error voting:', error);
+    toast.error('Failed to vote'); // ✅ NEW
+  } finally {
+    setLoading(false);
+  }
+};
 
-  const handleVote = async () => {
-    if (!isPurchased) return;
+const handleDeleteComment = async (commentId: string) => {
+  if (!confirm('Delete this comment?')) return;
 
-    setLoading(true);
-    try {
-      if (hasVoted) {
-        const { error } = await supabase
-          .from('votes')
-          .delete()
-          .eq('chapter_id', chapterId)
-          .eq('user_id', user!.id)
-          .is('book_id', null);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase.from('votes').insert([
-          {
-            chapter_id: chapterId,
-            book_id: null,
-            user_id: user!.id,
-          },
-        ]);
-
-        if (error) throw error;
-      }
-      fetchVotes();
-    } catch (error) {
-      console.error('Error voting:', error);
-      alert('Failed to vote');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteComment = async (commentId: string) => {
-    if (!confirm('Delete this comment?')) return;
-
-    try {
-      const { error } = await supabase.from('comments').delete().eq('id', commentId);
-      if (error) throw error;
-      fetchComments();
-    } catch (error) {
-      console.error('Error deleting comment:', error);
-      alert('Failed to delete comment');
-    }
-  };
+  try {
+    const { error } = await supabase.from('comments').delete().eq('id', commentId);
+    if (error) throw error;
+    toast.success('Comment deleted'); // ✅ NEW
+    fetchComments();
+  } catch (error) {
+    console.error('Error deleting comment:', error);
+    toast.error('Failed to delete comment'); // ✅ NEW
+  }
+};
 
   if (!user || !isPurchased) {
     return (
@@ -158,11 +165,17 @@ export function CommentVoteSection({ chapterId, isPurchased }: CommentVoteSectio
             disabled={loading}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               hasVoted
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
+                : ' text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             }`}
           >
-            <ThumbsUp size={20} />
+            <ThumbsUp size={20} 
+            className={`transition-all ${
+                hasVoted 
+                  ? 'fill-green-600 text-green-600' 
+                  : 'fill-none text-gray-600 dark:text-gray-400'
+              }`}
+            />
             {votes.length} {votes.length === 1 ? 'Vote' : 'Votes'}
           </button>
           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">

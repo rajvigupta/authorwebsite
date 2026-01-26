@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { X, Mail, Lock, User, HelpCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.tsx';
+import { useToast } from './Toast';
 import { ForgotPasswordModal } from './ForgotPasswordModal.tsx';
 
 type AuthModalProps = {
@@ -25,8 +26,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const { signIn, signUp } = useAuth();
+  const toast = useToast();
 
-  // Don't render anything if both modals are closed
   if (!isOpen && !showForgotPassword) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -37,23 +38,38 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       if (mode === 'signin') {
         await signIn(email, password);
+        toast.success(`Welcome back! 🎉`, 4000);
         onClose();
       } else {
         if (!fullName.trim()) {
           setError('Please enter your full name');
+          toast.error('Please enter your full name');
           setLoading(false);
           return;
         }
         if (!securityAnswer.trim()) {
           setError('Please provide an answer to the security question');
+          toast.error('Please provide a security answer');
           setLoading(false);
           return;
         }
+        
         await signUp(email, password, fullName, securityQuestion, securityAnswer);
+        
+        toast.success(
+          '🎊 Account created successfully! Please check your email to verify your account.',
+          8000
+        );
+        toast.info(
+          'If you face any issues, contact the developer from the Contact Support section.',
+          10000
+        );
+        
         onClose();
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
+      toast.error(err.message || 'An error occurred. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -71,18 +87,15 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   return (
     <>
-      {/*Main Auth Modal - Hide when showing forgot password*/}
       {!showForgotPassword && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
           <div className="bg-gradient-to-br from-forest-mid to-forest-dark rounded-2xl shadow-2xl max-w-md w-full p-8 relative transform transition-all max-h-[90vh] overflow-y-auto border-2 border-gold/30">
             
-            {/* Decorative corner ornaments */}
             <div className="corner-ornament corner-ornament-tl"></div>
             <div className="corner-ornament corner-ornament-tr"></div>
             <div className="corner-ornament corner-ornament-bl"></div>
             <div className="corner-ornament corner-ornament-br"></div>
 
-            {/* Decorative top border glow */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50"></div>
             
             <button
@@ -94,7 +107,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             </button>
 
             <div className="text-center mb-8">
-              {/* Decorative icon */}
               <div className="inline-block p-3 bg-gold/10 rounded-full mb-4 border border-gold/30">
                 <User size={32} className="text-gold" />
               </div>
@@ -160,7 +172,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       <Lock size={18} className="text-green-fresh" />
                     </div>
                     <input
-                    type="text"
+                      type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
@@ -254,7 +266,6 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                 </div>
               )}
 
-             {/* Ornamental divider */}
               <div className="relative my-6">
                 <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t border-green-fresh/30"></div>
@@ -276,13 +287,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               </div>
             </div>
 
-            {/* Decorative bottom border glow */}
             <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50"></div>
           </div>
         </div>
       )}
 
-      {/* Forgot Password Modal - Show when triggered */}
       {showForgotPassword && (
         <ForgotPasswordModal
           isOpen={showForgotPassword}

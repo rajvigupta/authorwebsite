@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { RichTextViewer } from './RichTextViewer';
 import { CommentVoteSection } from './CommentVoteSection';
 import type { Chapter, Purchase } from '../lib/supabase';
+import { useToast } from './Toast';
 
 declare global {
   interface Window {
@@ -22,6 +23,7 @@ export function StandaloneChapterView() {
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
   const { user, profile } = useAuth();
+  const toast = useToast();
 
   useEffect(() => {
     if (chapterId) {
@@ -130,7 +132,7 @@ export function StandaloneChapterView() {
         order_id: orderData.orderId,
         handler: async function (response: any) {
           try {
-            console.log('Payment successful, verifying...');
+            
             
             const verifyResponse = await fetch(
               `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-payment`,
@@ -154,14 +156,13 @@ export function StandaloneChapterView() {
             console.log('Verification result:', verifyData);
 
             if (verifyData.success) {
-              alert('Payment successful! Chapter unlocked.');
-              await loadChapterData();
+               toast.success('🎉 Payment successful! Chapter unlocked.', 6000); // ✅ NEW
             } else {
-              alert('Payment verification failed. Please contact support.');
+              toast.error('Payment verification failed. Please contact support.'); // ✅ NEW
             }
           } catch (error) {
             console.error('Verification error:', error);
-            alert('Payment verification failed. Please contact support.');
+            toast.error('Payment verification failed. Please contact support.'); // ✅ NEW
           } finally {
             setPurchasing(false);
           }

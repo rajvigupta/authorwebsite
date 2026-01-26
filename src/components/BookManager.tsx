@@ -3,6 +3,7 @@ import { Book, Plus, Edit2, Trash2, Eye, EyeOff, FileText } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import type { Book as BookType } from '../lib/supabase';
+import { useToast } from './Toast';
 
 type BookManagerProps = {
   onManageChapters?: (bookId: string, bookTitle: string) => void;
@@ -15,6 +16,7 @@ export function BookManager({ onManageChapters }: BookManagerProps) {
   const [showForm, setShowForm] = useState(false);
   const [editingBook, setEditingBook] = useState<BookType | null>(null);
   const { profile } = useAuth();
+  const toast = useToast();
 
   const [formData, setFormData] = useState({
     title: '',
@@ -58,9 +60,10 @@ export function BookManager({ onManageChapters }: BookManagerProps) {
     }
   };
 
-// Replace the entire handleSubmit function in BookManager.tsx:
 
-const handleSubmit = async (e: React.FormEvent) => {
+
+  const handleSubmit = async (e: React.FormEvent) =>
+ {
   e.preventDefault();
   setUploading(true);
 
@@ -68,7 +71,6 @@ const handleSubmit = async (e: React.FormEvent) => {
     let coverImageUrl = editingBook?.cover_image_url || null;
 
     if (coverImage) {
-      // Validate file type
       const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
       const fileType = coverImage.type || '';
       
@@ -76,15 +78,12 @@ const handleSubmit = async (e: React.FormEvent) => {
         throw new Error(`Invalid file type: ${fileType}. Allowed: JPEG, PNG, WebP`);
       }
 
-      // Validate file size (5MB max)
       const maxSize = 5 * 1024 * 1024;
       if (coverImage.size > maxSize) {
         throw new Error('File too large. Maximum size is 5MB');
       }
 
       const fileExt = coverImage.name.split('.').pop()?.toLowerCase();
-      
-      // Ensure file extension matches type
       const validExt = fileType.includes('jpeg') || fileType.includes('jpg') ? 'jpg' : 
                        fileType.includes('png') ? 'png' : 
                        fileType.includes('webp') ? 'webp' : null;
@@ -95,31 +94,23 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       const filePath = `${profile?.id}/${Date.now()}.${validExt}`;
       
-      console.log('📤 Uploading book cover:', {
-        path: filePath,
-        size: `${(coverImage.size / 1024).toFixed(2)} KB`,
-        type: fileType,
-        name: coverImage.name
-      });
+      toast.info('Uploading cover image...'); // ✅ NEW
 
       const { error: uploadError, data: uploadData } = await supabase.storage
         .from('book-covers')
         .upload(filePath, coverImage, {
           cacheControl: '3600',
           upsert: true,
-          contentType: fileType // Now guaranteed to be valid
+          contentType: fileType
         });
 
       if (uploadError) {
-        console.error('❌ Upload error:', uploadError);
         throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       if (!uploadData) {
         throw new Error('Upload succeeded but no data returned');
       }
-
-      console.log('✅ Upload successful:', uploadData);
 
       const { data: urlData } = supabase.storage
         .from('book-covers')
@@ -130,8 +121,9 @@ const handleSubmit = async (e: React.FormEvent) => {
       }
 
       coverImageUrl = urlData.publicUrl;
-      console.log('✅ Public URL:', coverImageUrl);
     }
+
+    
 
     const bookData = {
       title: formData.title,
@@ -142,69 +134,61 @@ const handleSubmit = async (e: React.FormEvent) => {
       is_published: formData.is_published,
     };
 
-    console.log('💾 Saving book data:', bookData);
-
     if (editingBook) {
       const { error } = await supabase
         .from('books')
         .update(bookData)
         .eq('id', editingBook.id);
 
-      if (error) {
-        console.error('❌ Update error:', error);
-        throw error;
-      }
-      console.log('✅ Book updated');
+      if (error) throw error;
+      toast.success('📚 Book updated successfully!'); // ✅ NEW
     } else {
       const { error } = await supabase
         .from('books')
         .insert([bookData]);
 
-      if (error) {
-        console.error('❌ Insert error:', error);
-        throw error;
-      }
-      console.log('✅ Book created');
+      if (error) throw error;
+      toast.success('🎉 Book created successfully!'); // ✅ NEW
     }
 
     resetForm();
     loadBooks();
   } catch (error: any) {
-    console.error('❌ Error saving book:', error);
-    alert(error.message || 'Failed to save book');
+    console.error('Error saving book:', error);
+    toast.error(error.message || 'Failed to save book'); // ✅ NEW
   } finally {
     setUploading(false);
   }
 };
 
-  const handleEdit = (book: BookType) => {
-    setEditingBook(book);
-    setFormData({
-      title: book.title,
-      description: book.description,
-      author_note: book.author_note || '',
-      is_published: book.is_published,
-    });
-    setShowForm(true);
-  };
+const handleEdit = (book: BookType) => {
+  setEditingBook(book);
+  setFormData({
+    title: book.title,
+    description: book.description,
+    author_note: book.author_note || '',
+    is_published: book.is_published,
+  });
+  setShowForm(true);
+};
 
-  const handleDelete = async (bookId: string) => {
-    if (!confirm('Delete this book? All chapters in this book will also be deleted.')) return;
+const handleDelete = async (bookId: string) => {
+  if (!confirm('Delete this book? All chapters in this book will also be deleted.')) return;
 
-    try {
-      const { error } = await supabase.from('books').delete().eq('id', bookId);
+  try {
+    const { error } = await supabase.from('books').delete().eq('id', bookId);
 
-      if (error) throw error;
-      loadBooks();
-    } catch (error) {
-      console.error('Error deleting book:', error);
-      alert('Failed to delete book');
-    }
-  };
+    if (error) throw error;
+    toast.success('🗑️ Book deleted successfully'); // ✅ NEW
+    loadBooks();
+  } catch (error) {
+    console.error('Error deleting book:', error);
+    toast.error('Failed to delete book'); // ✅ NEW
+  }
+};
 
-  const togglePublish = async (book: BookType) =>
-     {
-      const action = book.is_published ? 'unpublish' : 'publish';
+const togglePublish = async (book: BookType) => {
+  const action = book.is_published ? 'unpublish' : 'publish';
   const confirmed = window.confirm(
     `Are you sure you want to ${action} "${book.title}"?\n\n${
       book.is_published 
@@ -213,21 +197,28 @@ const handleSubmit = async (e: React.FormEvent) => {
     }`
   );
 
-  if (!confirmed) return
-    try {
-      const { error } = await supabase
-        .from('books')
-        .update({ is_published: !book.is_published })
-        .eq('id', book.id);
+  if (!confirmed) return;
+  
+  try {
+    const { error } = await supabase
+      .from('books')
+      .update({ is_published: !book.is_published })
+      .eq('id', book.id);
 
-      if (error) throw error;
-      loadBooks();
-    } catch (error) {
-      console.error('Error updating book:', error);
-      alert('Failed to update book');
+    if (error) throw error;
+    
+    if (book.is_published) {
+      toast.info(`📖 "${book.title}" has been unpublished`); // ✅ NEW
+    } else {
+      toast.success(`🚀 "${book.title}" is now published and visible to readers!`); // ✅ NEW
     }
-  };
-
+    
+    loadBooks();
+  } catch (error) {
+    console.error('Error updating book:', error);
+    toast.error('Failed to update book status'); // ✅ NEW
+  }
+};
   const resetForm = () => {
     setFormData({
       title: '',

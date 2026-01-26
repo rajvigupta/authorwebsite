@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { MessageSquare, ThumbsUp, Send, Trash2 } from 'lucide-react';
 import { supabase, Comment, Vote, Profile } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
+import { useToast } from './Toast';
 
 type CommentWithProfile = Comment & {
   profile: Profile;
@@ -18,6 +19,7 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
   const [hasVoted, setHasVoted] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user, profile } = useAuth();
+  const toast = useToast();
 
   useEffect(() => {
     fetchComments();
@@ -78,11 +80,11 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
 
       if (error) throw error;
       setNewComment('');
+      toast.success('💬 Comment posted successfully!'); 
       fetchComments();
     } catch (error) {
       console.error('Error posting comment:', error);
-      alert('Failed to post comment');
-    } finally {
+      toast.error('Failed to post comment');
       setLoading(false);
     }
   };
@@ -104,6 +106,7 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
           .is('chapter_id', null);
 
         if (error) throw error;
+        toast.info('Vote removed');
       } else {
         const { error } = await supabase.from('votes').insert([
           {
@@ -114,11 +117,13 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
         ]);
 
         if (error) throw error;
+      toast.success('👍 Voted!'); 
       }
+
       fetchVotes();
     } catch (error) {
       console.error('Error voting:', error);
-      alert('Failed to vote');
+      toast.error('Failed to vote'); 
     } finally {
       setLoading(false);
     }
@@ -130,10 +135,11 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
     try {
       const { error } = await supabase.from('comments').delete().eq('id', commentId);
       if (error) throw error;
+      toast.success('Comment deleted'); 
       fetchComments();
     } catch (error) {
       console.error('Error deleting comment:', error);
-      alert('Failed to delete comment');
+      toast.error('Failed to delete comment');
     }
   };
 
@@ -147,11 +153,18 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
             disabled={loading}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               hasVoted
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
+                : ' text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             }`}
           >
-            <ThumbsUp size={20} />
+            <ThumbsUp 
+              size={20} 
+              className={`transition-all ${
+                hasVoted 
+                  ? 'fill-green-600 text-green-600' 
+                  : 'fill-none text-gray-600 dark:text-gray-400'
+              }`}
+            />
             {votes.length} {votes.length === 1 ? 'Like' : 'Likes'}
           </button>
           <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">

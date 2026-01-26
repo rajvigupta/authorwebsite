@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { BookCommentSection } from './BookCommentSection';
 import { ChapterReader } from './ChapterReader';
 import type { Book as BookType, Chapter, Purchase } from '../lib/supabase';
+import { useToast } from './Toast';
 
 declare global {
   interface Window {
@@ -27,6 +28,7 @@ export function BookView() {
   const [currentChapterIndex, setCurrentChapterIndex] = useState(0);
   
   const { user, profile } = useAuth();
+  const toast = useToast();
 
   useEffect(() => {
     if (bookId) {
@@ -168,6 +170,7 @@ export function BookView() {
         order_id: orderData.orderId,
         handler: async function (response: any) {
           try {
+            toast.info('Verifying payment...');
             const verifyResponse = await fetch(
               `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-payment`,
               {
@@ -189,14 +192,14 @@ export function BookView() {
             const verifyData = await verifyResponse.json();
 
             if (verifyData.success) {
-              alert('Payment successful! Chapter unlocked.');
+             toast.success('🎉 Payment successful! Chapter unlocked.', 6000); 
               await loadBookData();
             } else {
-              alert('Payment verification failed. Please contact support.');
+              toast.error('Payment verification failed. Please contact support.'); 
             }
           } catch (error) {
             console.error('Verification error:', error);
-            alert('Payment verification failed. Please contact support.');
+            toast.error('Payment verification failed. Please contact support.'); // ✅ NEW
           } finally {
             setPurchasing(false);
           }

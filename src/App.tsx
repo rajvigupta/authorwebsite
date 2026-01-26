@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ToastProvider } from './components/Toast'; // ✅ NEW
 import { Header } from './components/Header';
 import { Footer } from './components/footer';
 import { ChapterStore } from './components/ChapterStore';
@@ -31,36 +32,22 @@ function AppContent() {
     <div className="min-h-screen bg-gothic-darkest flex flex-col">
       <FloatingPages />
       
-      <Header
-        onAuthClick={() => setShowAuthModal(true)}
-      />
+      <Header onAuthClick={() => setShowAuthModal(true)} />
 
       <main className="flex-1">
         <Routes>
-          {/* Main Store */}
           <Route path="/" element={<ChapterStore />} />
-          
-          {/* Book View */}
           <Route path="/book/:bookId" element={<BookView />} />
-          
-          {/* Standalone Chapter View */}
           <Route path="/chapter/:chapterId" element={<StandaloneChapterView />} />
-          
-          {/* Author Dashboard - Protected Route */}
           <Route 
             path="/dashboard" 
-            element={
-              isAuthor ? <AuthorDashboard /> : <Navigate to="/" replace />
-            } 
+            element={isAuthor ? <AuthorDashboard /> : <Navigate to="/" replace />} 
           />
-          
-          {/* Catch all - redirect to home */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
       <Footer />
-
       <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   );
@@ -69,9 +56,11 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
+      <ToastProvider> {/* ✅ NEW - Wrap everything */}
+        <AuthProvider>
+          <AppContent />
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

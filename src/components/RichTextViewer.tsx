@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Type, ZoomIn, ZoomOut, AlignLeft } from 'lucide-react';
+import { useScreenshotPrevention } from '../hooks/useScreenshotPrevention';
+
+
 
 type ContentBlock = {
   id: string;
@@ -17,7 +20,7 @@ type RichTextViewerProps = {
 };
 
 type FontSize = 'small' | 'medium' | 'large';
-type LineHeight = 'comfortable' | 'spacious';
+type LineHeight = 'normal' | 'spacious';
 
 function parseMarkdown(text: string) {
   const parts: { text: string; bold?: boolean; italic?: boolean }[] = [];
@@ -62,7 +65,7 @@ function parseMarkdown(text: string) {
 
 export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTextViewerProps) {
   const [fontSize, setFontSize] = useState<FontSize>('medium');
-  const [lineHeight, setLineHeight] = useState<LineHeight>('comfortable');
+  const [lineHeight, setLineHeight] = useState<LineHeight>('normal');
   const [showControls, setShowControls] = useState(false);
 
   // Load preferences from localStorage
@@ -73,6 +76,11 @@ export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTex
     if (savedFontSize) setFontSize(savedFontSize);
     if (savedLineHeight) setLineHeight(savedLineHeight);
   }, []);
+
+  useScreenshotPrevention({
+    userEmail,
+    contentType: 'text',
+  });
 
   // Save preferences
   const handleFontSizeChange = (size: FontSize) => {
@@ -119,7 +127,7 @@ export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTex
       document.removeEventListener('contextmenu', handleContextMenu);
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, []);//
 
   if (!content || content.length === 0) {
     return (
@@ -165,19 +173,18 @@ export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTex
     }
   };
 
-  // Font size classes
-  const getFontSizeClass = () => {
-    switch(fontSize) {
-      case 'small': return 'text-base';
-      case 'medium': return 'text-lg';
-      case 'large': return 'text-xl';
-    }
-  };
-
+  // Font size classes - MOBILE RESPONSIVE
+const getFontSizeClass = () => {
+  switch(fontSize) {
+    case 'small': return 'text-sm md:text-base';
+    case 'medium': return 'text-base md:text-lg';
+    case 'large': return 'text-lg md:text-xl';
+  }
+};
   // Line height classes - FIXED: More distinction
   const getLineHeightClass = () => {
     switch(lineHeight) {
-      case 'comfortable': return 'leading-relaxed'; // 1.625
+      case 'normal': return 'leading-relaxed'; // 1.625
       case 'spacious': return 'leading-loose'; // 2.0
     }
   };
@@ -196,53 +203,58 @@ export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTex
       <div className="sticky top-20 z-30 mb-6">
         <div className="flex justify-center">
           <button
-            onClick={() => setShowControls(!showControls)}
-            className="px-4 py-2 bg-gothic-mid/90 backdrop-blur-sm text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-all font-lora text-sm flex items-center gap-2"
-          >
-            <Type size={16} />
-            Reading Options
-          </button>
+  onClick={() => setShowControls(!showControls)}
+  className="px-3 md:px-4 py-2 bg-gothic-mid/90 backdrop-blur-sm text-primary border border-primary/30 rounded-lg hover:bg-primary/10 transition-all font-lora text-xs md:text-sm flex items-center gap-1 md:gap-2"
+>
+  <Type size={14} className="md:w-4 md:h-4" />
+  <span className="hidden sm:inline">Reading Options</span>
+  <span className="sm:hidden">Options</span>
+</button>
+          
         </div>
 
         {showControls && (
-          <div className="mt-2 mx-auto max-w-2xl bg-gothic-mid/95 backdrop-blur-sm border border-primary/30 rounded-lg p-4 shadow-gold">
+        <div className="mt-2 mx-2 md:mx-auto max-w-2xl bg-gothic-mid/95 backdrop-blur-sm border border-primary/30 rounded-lg p-3 md:p-4 shadow-gold">
             {/* Font Size Controls */}
             <div className="mb-4">
               <label className="block text-sm font-cinzel text-primary mb-2">Font Size</label>
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleFontSizeChange('small')}
-                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
-                    fontSize === 'small'
-                      ? 'bg-primary text-gothic-darkest font-semibold'
-                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
-                  }`}
-                >
-                  <ZoomOut size={14} className="inline mr-1" />
-                  Small
-                </button>
-                <button
-                  onClick={() => handleFontSizeChange('medium')}
-                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
-                    fontSize === 'medium'
-                      ? 'bg-primary text-gothic-darkest font-semibold'
-                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
-                  }`}
-                >
-                  <Type size={14} className="inline mr-1" />
-                  Medium
-                </button>
-                <button
-                  onClick={() => handleFontSizeChange('large')}
-                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
-                    fontSize === 'large'
-                      ? 'bg-primary text-gothic-darkest font-semibold'
-                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
-                  }`}
-                >
-                  <ZoomIn size={14} className="inline mr-1" />
-                  Large
-                </button>
+               <button
+  onClick={() => handleFontSizeChange('small')}
+  className={`flex-1 px-2 md:px-3 py-2 rounded-lg font-lora text-xs md:text-sm transition-all ${
+    fontSize === 'small'
+      ? 'bg-primary text-gothic-darkest font-semibold'
+      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+  }`}
+>
+  <ZoomOut size={12} className="inline mr-1 md:w-3.5 md:h-3.5" />
+  <span className="hidden sm:inline">Small</span>
+  <span className="sm:hidden">S</span>
+</button>
+<button
+  onClick={() => handleFontSizeChange('medium')}
+  className={`flex-1 px-2 md:px-3 py-2 rounded-lg font-lora text-xs md:text-sm transition-all ${
+    fontSize === 'medium'
+      ? 'bg-primary text-gothic-darkest font-semibold'
+      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+  }`}
+>
+  <Type size={12} className="inline mr-1 md:w-3.5 md:h-3.5" />
+  <span className="hidden sm:inline">Medium</span>
+  <span className="sm:hidden">M</span>
+</button>
+<button
+  onClick={() => handleFontSizeChange('large')}
+  className={`flex-1 px-2 md:px-3 py-2 rounded-lg font-lora text-xs md:text-sm transition-all ${
+    fontSize === 'large'
+      ? 'bg-primary text-gothic-darkest font-semibold'
+      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+  }`}
+>
+  <ZoomIn size={12} className="inline mr-1 md:w-3.5 md:h-3.5" />
+  <span className="hidden sm:inline">Large</span>
+  <span className="sm:hidden">L</span>
+</button>
               </div>
             </div>
 
@@ -250,28 +262,28 @@ export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTex
             <div>
               <label className="block text-sm font-cinzel text-primary mb-2">Line Spacing</label>
               <div className="flex gap-2">
-                <button
-                  onClick={() => handleLineHeightChange('comfortable')}
-                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
-                    lineHeight === 'comfortable'
-                      ? 'bg-primary text-gothic-darkest font-semibold'
-                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
-                  }`}
-                >
-                  <AlignLeft size={14} className="inline mr-1" />
-                  Comfortable
-                </button>
-                <button
-                  onClick={() => handleLineHeightChange('spacious')}
-                  className={`flex-1 px-3 py-2 rounded-lg font-lora text-sm transition-all ${
-                    lineHeight === 'spacious'
-                      ? 'bg-primary text-gothic-darkest font-semibold'
-                      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
-                  }`}
-                >
-                  <AlignLeft size={14} className="inline mr-1" />
-                  Spacious
-                </button>
+               <button
+               onClick={() => handleLineHeightChange('normal')}
+                className={`flex-1 px-2 md:px-3 py-2 rounded-lg font-lora text-xs md:text-sm transition-all ${
+                lineHeight === 'normal'
+                     ? 'bg-primary text-gothic-darkest font-semibold'
+                     : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+                        }`}
+                   >
+  <AlignLeft size={12} className="inline mr-1 md:w-3.5 md:h-3.5" />
+  Normal
+</button>
+<button
+  onClick={() => handleLineHeightChange('spacious')}
+  className={`flex-1 px-2 md:px-3 py-2 rounded-lg font-lora text-xs md:text-sm transition-all ${
+    lineHeight === 'spacious'
+      ? 'bg-primary text-gothic-darkest font-semibold'
+      : 'bg-gothic-dark text-text-muted hover:bg-primary/20'
+  }`}
+>
+  <AlignLeft size={12} className="inline mr-1 md:w-3.5 md:h-3.5" />
+  Spacious
+</button> 
               </div>
             </div>
           </div>
@@ -317,17 +329,24 @@ export function RichTextViewer({ content, userEmail, theme = 'gothic' }: RichTex
       )}
 
       {/* Main Content */}
-      <div className={`prose prose-lg max-w-none ${getFontSizeClass()} ${getLineHeightClass()}`}>
+      <div className={`prose prose-lg max-w-none px-3 md:px-0 ${getFontSizeClass()} ${getLineHeightClass()}`}>
         {content.map((block) => {
           switch (block.type) {
             case 'heading':
               const HeadingTag = `h${block.level || 2}` as keyof JSX.IntrinsicElements;
               const headingParts = parseMarkdown(block.content);
               return (
+
                 <HeadingTag
-                  key={block.id}
-                  className="font-cinzel font-bold text-primary mb-4 select-none"
-                >
+               key={block.id}
+               className={`font-cinzel font-bold text-primary mb-3 md:mb-4 select-none ${
+               block.level === 1 ? 'text-2xl md:text-3xl lg:text-4xl' :
+               block.level === 2 ? 'text-xl md:text-2xl lg:text-3xl' :
+               'text-lg md:text-xl lg:text-2xl'
+                }`}
+               >
+
+
                   {headingParts.map((part, i) => {
                     if (part.bold && part.italic) {
                       return <strong key={i} className="italic text-primary">{part.text}</strong>;

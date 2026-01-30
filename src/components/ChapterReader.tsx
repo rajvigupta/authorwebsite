@@ -5,6 +5,8 @@ import { useAuth } from '../contexts/AuthContext';
 import { RichTextViewer } from './RichTextViewer';
 import { CommentVoteSection } from './CommentVoteSection';
 import type { Chapter } from '../lib/supabase';
+import { useScreenshotPrevention } from '../hooks/useScreenshotPrevention';
+import { SecureImageViewer } from './SecureImageViewer';
 
 type ChapterReaderProps = {
   chapterId: string;
@@ -43,6 +45,13 @@ export function ChapterReader({
   useEffect(() => {
     loadChapter();
   }, [chapterId]);
+
+  // ✅ ADD THIS: Apply screenshot prevention
+  useScreenshotPrevention({
+    userEmail: user?.email,
+    contentType: chapter?.content_type || 'text',
+  });
+
 
   const loadChapter = async () => {
     try {
@@ -110,11 +119,10 @@ export function ChapterReader({
   return (
     <div className={`fixed inset-0 bg-gothic-darkest z-50 overflow-y-auto ${getThemeClass()}`}>
       
-      {/* Header - Fixed at top - MOBILE RESPONSIVE */}
+      {/* Header */}
       <div className="sticky top-0 z-[100] bg-gothic-dark/95 backdrop-blur-sm border-b border-accent-maroon/30">
         <div className="max-w-4xl mx-auto px-3 md:px-4 py-3 md:py-4">
           <div className="flex items-center justify-between gap-2">
-            {/* Left: Close button - Compact on mobile */}
             <button
               onClick={onClose}
               className="flex items-center gap-1 md:gap-2 text-text-muted hover:text-primary transition-colors shrink-0"
@@ -123,7 +131,6 @@ export function ChapterReader({
               <span className="font-lora text-sm md:text-base hidden sm:inline">Close</span>
             </button>
 
-            {/* Center: Chapter info - Truncate on mobile */}
             <div className="text-center flex-1 px-2 md:px-4 min-w-0 overflow-hidden">
               {bookTitle && (
                 <p className="text-xs text-text-muted font-lora truncate">{bookTitle}</p>
@@ -133,7 +140,6 @@ export function ChapterReader({
               </h1>
             </div>
 
-            {/* Right: Theme toggle - Icon only on mobile */}
             <div className="flex items-center gap-1 md:gap-2 shrink-0">
               <div className="relative z-[101]">
                 <button
@@ -153,7 +159,6 @@ export function ChapterReader({
                       onClick={() => setShowThemeSelector(false)}
                     />
                     
-                    {/* Theme Dropdown - Mobile optimized */}
                     <div 
                       className="absolute right-0 mt-2 bg-gothic-mid rounded-lg shadow-2xl border-2 border-accent-maroon/30 overflow-hidden w-[260px] md:min-w-[280px] z-[103]"
                     >
@@ -243,7 +248,7 @@ export function ChapterReader({
         </div>
       </div>
 
-      {/* Main Content - Mobile optimized padding */}
+      {/* Main Content */}
       <div className="max-w-4xl mx-auto px-3 md:px-4 py-6 md:py-8">
         <div className="mb-6 md:mb-8 text-center">
           <p className="text-text-muted font-cormorant italic text-base md:text-lg">
@@ -251,70 +256,36 @@ export function ChapterReader({
           </p>
         </div>
 
-        {/* Chapter Content - Mobile optimized */}
-        <div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
-          {chapter.content_type === 'pdf' && chapter.pdf_url ? (
-            <div className="relative">
-              {/* Email watermark for PDF */}
-              {user?.email && (
-                <div 
-                  className="absolute inset-0 pointer-events-none select-none overflow-hidden z-10" 
-                  style={{ mixBlendMode: 'multiply' }}
-                >
-                  <div className="absolute inset-0 grid grid-cols-2 gap-y-32 -rotate-45 scale-150">
-                    {[...Array(20)].map((_, i) => (
-                      <div
-                        key={i}
-                        className="text-white/[0.15] font-mono text-xs md:text-sm whitespace-nowrap px-8"
-                        style={{
-                          transform: `translateY(${(i % 2) * 100}px)`,
-                        }}
-                      >
-                        {user.email}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+        {/* Chapter Content */}
+<div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
+  {chapter.rich_content && Array.isArray(chapter.rich_content) ? (
+    // Check if it's image-based pages
+    chapter.rich_content.length > 0 && chapter.rich_content[0]?.type === 'page-image' ? (
+      // ✅ Show image viewer for converted PDFs
+      <SecureImageViewer
+        pages={chapter.rich_content as any}
+        userEmail={user?.email || 'Unknown User'}
+        chapterTitle={chapter.title}
+      />
+    ) : (
 
-              {/* PDF Embed - Responsive height */}
-              <iframe
-                src={`${chapter.pdf_url}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-                className="w-full border-0 rounded"
-                style={{ height: '60vh' }} // Reduced from 80vh for mobile
-                title={chapter.title}
-                onContextMenu={(e) => e.preventDefault()}
-              />
+      // Show rich text viewer for normal text content
+      <RichTextViewer 
+        content={chapter.rich_content as any}
+        userEmail={user?.email}
+        theme={theme}
+      />
+    )
+  ) : (
+    <div className="text-center py-12 text-text-muted font-lora">
+      No content available
+    </div>
+  )}
+</div>
 
-              {/* Protection message */}
-              <div className="mt-4 p-3 md:p-4 bg-accent-maroon/10 border border-accent-maroon/30 rounded-lg text-center">
-                <p className="text-text-muted font-lora text-xs md:text-sm flex flex-wrap items-center justify-center gap-1 md:gap-2">
-                  <span>🔒 Protected</span>
-                  {user?.email && (
-                    <>
-                      <span className="hidden sm:inline">•</span>
-                      <span className="italic text-xs hidden sm:inline">{user.email}</span>
-                    </>
-                  )}
-                  <span className="hidden sm:inline">•</span>
-                  <span>View-only</span>
-                </p>
-              </div>
-            </div>
-          ) : chapter.content_type === 'text' && chapter.rich_content ? (
-            <RichTextViewer 
-              content={chapter.rich_content as any}
-              userEmail={user?.email}
-              theme={theme}
-            />
-          ) : (
-            <div className="text-center py-12 text-text-muted font-lora">
-              No content available
-            </div>
-          )}
-        </div>
+       
 
-        {/* Navigation - Mobile optimized */}
+        {/* Navigation */}
         {(hasPrevChapter || hasNextChapter) && (
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-8 md:mb-12">
             <button
@@ -352,7 +323,7 @@ export function ChapterReader({
         </div>
       </div>
 
-      {/* Footer - Mobile optimized */}
+      {/* Footer */}
       <div className="border-t border-accent-maroon/30 py-6 md:py-8">
         <div className="max-w-4xl mx-auto px-3 md:px-4 text-center">
           <button

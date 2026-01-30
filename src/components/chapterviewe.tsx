@@ -5,8 +5,10 @@ import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { RichTextViewer } from './RichTextViewer';
 import { CommentVoteSection } from './CommentVoteSection';
-import type { Chapter, Purchase } from '../lib/supabase';
+import { useScreenshotPrevention } from '../hooks/useScreenshotPrevention';
+import { SecureImageViewer } from './SecureImageViewer';
 import { useToast } from './Toast';
+import type { Chapter, Purchase } from '../lib/supabase';
 
 declare global {
   interface Window {
@@ -25,13 +27,28 @@ export function StandaloneChapterView() {
   const { user, profile } = useAuth();
   const toast = useToast();
 
-  useEffect(() => {
+ 
+const [theme, setTheme] = useState<'gothic' | 'light' | 'dark'>('gothic');
+
+useEffect(() => {
+  const savedTheme = localStorage.getItem('reading-theme') as 'gothic' | 'light' | 'dark';
+  if (savedTheme) {
+    setTheme(savedTheme);
+  }
+}, []);
+
+useEffect(() => {
     if (chapterId) {
       loadChapterData();
     } else {
       navigate('/');
     }
   }, [chapterId]);
+
+  useScreenshotPrevention({
+    userEmail: user?.email,
+    contentType: chapter?.content_type || 'text',
+  });
 
   const loadChapterData = async () => {
     if (!chapterId) return;
@@ -72,7 +89,7 @@ export function StandaloneChapterView() {
 
   const handlePurchase = async () => {
     if (!user || !chapter) {
-      alert('Please sign in to purchase');
+      toast.error('Please sign in to purchase');
       return;
     }
 
@@ -84,7 +101,7 @@ export function StandaloneChapterView() {
         throw new Error('No active session');
       }
 
-      console.log('Creating order for chapter:', chapter.id);
+      toast.info('Creating payment order...');
 
       const orderResponse = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-order`,
@@ -102,13 +119,11 @@ export function StandaloneChapterView() {
         }
       );
 
-      console.log('Order response status:', orderResponse.status);
-
       if (!orderResponse.ok) {
         const errorData = await orderResponse.json();
-        console.error('Order creation error:', errorData);
         
         if (errorData.alreadyOwned) {
+          toast.info('You already own this chapter! Refreshing...');
           await loadChapterData();
           return;
         }
@@ -117,7 +132,6 @@ export function StandaloneChapterView() {
       }
 
       const orderData = await orderResponse.json();
-      console.log('Order created:', orderData);
 
       if (!orderData.orderId) {
         throw new Error('No order ID returned');
@@ -132,7 +146,7 @@ export function StandaloneChapterView() {
         order_id: orderData.orderId,
         handler: async function (response: any) {
           try {
-            
+            toast.info('Verifying payment...');
             
             const verifyResponse = await fetch(
               `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/verify-payment`,
@@ -153,16 +167,16 @@ export function StandaloneChapterView() {
             );
 
             const verifyData = await verifyResponse.json();
-            console.log('Verification result:', verifyData);
 
             if (verifyData.success) {
-               toast.success('🎉 Payment successful! Chapter unlocked.', 6000); // ✅ NEW
+              toast.success('🎉 Payment successful! Chapter unlocked.', 6000);
+              await loadChapterData();
             } else {
-              toast.error('Payment verification failed. Please contact support.'); // ✅ NEW
+              toast.error('Payment verification failed. Please contact support.');
             }
           } catch (error) {
             console.error('Verification error:', error);
-            toast.error('Payment verification failed. Please contact support.'); // ✅ NEW
+            toast.error('Payment verification failed. Please contact support.');
           } finally {
             setPurchasing(false);
           }
@@ -176,7 +190,6 @@ export function StandaloneChapterView() {
         },
         modal: {
           ondismiss: function() {
-            console.log('Payment modal dismissed');
             setPurchasing(false);
           }
         }
@@ -186,7 +199,7 @@ export function StandaloneChapterView() {
       rzp.open();
     } catch (error: any) {
       console.error('Purchase error:', error);
-      alert(error.message || 'Failed to initiate purchase. Please try again.');
+      toast.error(error.message || 'Failed to initiate purchase. Please try again.');
       setPurchasing(false);
     }
   };
@@ -220,6 +233,7 @@ export function StandaloneChapterView() {
 
   return (
     <div className="min-h-screen bg-gothic-darkest">
+      
       {/* Sticky Header */}
       <div className="sticky top-0 z-10 bg-gothic-dark/95 backdrop-blur-sm border-b border-accent-maroon/30">
         <div className="max-w-4xl mx-auto px-3 md:px-4 py-3">
@@ -297,63 +311,33 @@ export function StandaloneChapterView() {
         ) : (
           <>
             {/* Chapter Content */}
-            <div className="bg-gothic-mid rounded-lg p-8 mb-8 border border-accent-maroon/20 shadow-gothic">
-              {chapter.content_type === 'pdf' && chapter.pdf_url ? (
-                <div className="relative">
-                  {user?.email && (
-                    <div 
-                      className="absolute inset-0 pointer-events-none select-none overflow-hidden z-10" 
-                      style={{ mixBlendMode: 'multiply' }}
-                    >
-                      <div className="absolute inset-0 grid grid-cols-2 gap-y-32 -rotate-45 scale-150">
-                        {[...Array(20)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="text-white/[0.15] font-mono text-sm whitespace-nowrap px-8"
-                            style={{
-                              transform: `translateY(${(i % 2) * 100}px)`,
-                            }}
-                          >
-                            {user.email}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+{/* Chapter Content */}
+<div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
+  {chapter.rich_content && Array.isArray(chapter.rich_content) ? (
+    // Check if it's image-based pages
+    chapter.rich_content.length > 0 && chapter.rich_content[0]?.type === 'page-image' ? (
+      // ✅ Show image viewer for converted PDFs
+      <SecureImageViewer
+        pages={chapter.rich_content as any}
+        userEmail={user?.email || 'Unknown User'}
+        chapterTitle={chapter.title}
+      />
+    ) : (
+      // Show rich text viewer for normal text content
+      <RichTextViewer 
+        content={chapter.rich_content as any}
+        userEmail={user?.email}
+        theme={theme}
+      />
+    )
+  ) : (
+    <div className="text-center py-12 text-text-muted font-lora">
+      No content available
+    </div>
+  )}
+</div>
+           
 
-                  <iframe
-                    src={`${chapter.pdf_url}#toolbar=0&navpanes=0&scrollbar=1&view=FitH`}
-                    className="w-full border-0 rounded"
-                    style={{ height: '80vh' }}
-                    title={chapter.title}
-                    onContextMenu={(e) => e.preventDefault()}
-                  />
-
-                  <div className="mt-4 p-4 bg-accent-maroon/10 border border-accent-maroon/30 rounded-lg text-center">
-                    <p className="text-text-muted font-lora text-sm flex items-center justify-center gap-2 flex-wrap">
-                      <span>🔒 This PDF is protected</span>
-                      {user?.email && (
-                        <>
-                          <span>•</span>
-                          <span className="italic">{user.email}</span>
-                        </>
-                      )}
-                      <span>•</span>
-                      <span>View-only • No downloads</span>
-                    </p>
-                  </div>
-                </div>
-              ) : chapter.content_type === 'text' && chapter.rich_content ? (
-                <RichTextViewer 
-                  content={chapter.rich_content as any}
-                  userEmail={user?.email}
-                />
-              ) : (
-                <div className="text-center py-12 text-text-muted font-lora">
-                  No content available
-                </div>
-              )}
-            </div>
 
             {/* Ornamental Divider */}
             <div className="ornamental-divider my-12"></div>

@@ -11,22 +11,13 @@ export function useScreenshotPrevention({
   contentType,
   onAttempt,
 }: ScreenshotPreventionOptions) {
-  // 🔹 ADDED: central blur state
+  // ðŸ”¹ ADDED: central blur state
   const isBlurredRef = useRef(false);
   const blurTimeoutRef = useRef<number | null>(null);
   const devtoolsOpenRef = useRef(false);
-  
-  // ✅ NEW: Track initial load to prevent false positive
-  const initialLoadRef = useRef(true);
-  const devToolsCheckCountRef = useRef(0);
 
   useEffect(() => {
-    // ✅ FIXED: Skip devtools check for first 3 seconds after mount
-    const initialLoadTimeout = setTimeout(() => {
-      initialLoadRef.current = false;
-    }, 3000);
-
-    // 🔹 ADDED: single blur controller
+    // ðŸ”¹ ADDED: single blur controller
     const triggerBlur = (duration = 800) => {
       if (isBlurredRef.current) return;
 
@@ -95,8 +86,7 @@ export function useScreenshotPrevention({
 
     // === VISIBILITY CHANGE DETECTION ===
     const handleVisibilityChange = () => {
-      // ✅ FIXED: Don't trigger on initial load
-      if (document.hidden && !initialLoadRef.current) {
+      if (document.hidden) {
         triggerBlur(300);
         logAttempt('visibility-change');
         navigator.clipboard?.writeText('').catch(() => {});
@@ -105,18 +95,6 @@ export function useScreenshotPrevention({
 
     // === DEVTOOLS DETECTION ===
     const detectDevTools = () => {
-      // ✅ FIXED: Skip check during initial load
-      if (initialLoadRef.current) {
-        return;
-      }
-
-      devToolsCheckCountRef.current++;
-      
-      // ✅ FIXED: Only check after 5 iterations (5 seconds)
-      if (devToolsCheckCountRef.current < 5) {
-        return;
-      }
-
       const threshold = 160;
       const widthOpen =
         Math.abs(window.outerWidth - window.innerWidth) > threshold;
@@ -193,7 +171,7 @@ export function useScreenshotPrevention({
       warning.className = 'screenshot-warning-overlay';
       warning.innerHTML = `
         <div class="screenshot-warning-content">
-          <div class="text-6xl mb-4">⚠️</div>
+          <div class="text-6xl mb-4">âš ï¸</div>
           <h3 class="text-2xl font-bold mb-2">Protected Content</h3>
           <p>Screenshots and downloads are disabled</p>
           ${userEmail ? `<p class="text-xs mt-4 opacity-50">${userEmail}</p>` : ''}
@@ -205,7 +183,7 @@ export function useScreenshotPrevention({
 
     // === LOGGING ===
     const logAttempt = (method: string) => {
-      console.warn('🚨 Screenshot attempt detected:', {
+      console.warn('ðŸš¨ Screenshot attempt detected:', {
         user: userEmail || 'Unknown',
         method,
         timestamp: new Date().toISOString(),
@@ -231,8 +209,22 @@ export function useScreenshotPrevention({
 
     // === CLEANUP ===
     return () => {
+      // Remove ALL event listeners
+      document.removeEventListener('keydown', preventKeyboardShortcuts, true);
+      document.removeEventListener('keyup', preventKeyboardShortcuts, true);
+      document.removeEventListener('contextmenu', preventContextMenu, true);
+      document.removeEventListener('copy', preventClipboard, true);
+      document.removeEventListener('cut', preventClipboard, true);
+      document.removeEventListener('paste', preventClipboard, true);
+      document.removeEventListener('dragstart', preventDrag, true);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      document.removeEventListener('keydown', handleVolumeButton, true);
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+      document.removeEventListener('touchstart', preventLongPress);
+      
+      // Clear timers and blur
       clearInterval(devToolsInterval);
-      clearTimeout(initialLoadTimeout);
       if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
       document.body.classList.remove('screenshot-blur');
       isBlurredRef.current = false;

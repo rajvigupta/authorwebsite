@@ -15,8 +15,17 @@ export function useScreenshotPrevention({
   const isBlurredRef = useRef(false);
   const blurTimeoutRef = useRef<number | null>(null);
   const devtoolsOpenRef = useRef(false);
+  
+  // ✅ NEW: Track initial load to prevent false positive
+  const initialLoadRef = useRef(true);
+  const devToolsCheckCountRef = useRef(0);
 
   useEffect(() => {
+    // ✅ FIXED: Skip devtools check for first 3 seconds after mount
+    const initialLoadTimeout = setTimeout(() => {
+      initialLoadRef.current = false;
+    }, 3000);
+
     // 🔹 ADDED: single blur controller
     const triggerBlur = (duration = 800) => {
       if (isBlurredRef.current) return;
@@ -86,7 +95,8 @@ export function useScreenshotPrevention({
 
     // === VISIBILITY CHANGE DETECTION ===
     const handleVisibilityChange = () => {
-      if (document.hidden) {
+      // ✅ FIXED: Don't trigger on initial load
+      if (document.hidden && !initialLoadRef.current) {
         triggerBlur(300);
         logAttempt('visibility-change');
         navigator.clipboard?.writeText('').catch(() => {});
@@ -95,6 +105,18 @@ export function useScreenshotPrevention({
 
     // === DEVTOOLS DETECTION ===
     const detectDevTools = () => {
+      // ✅ FIXED: Skip check during initial load
+      if (initialLoadRef.current) {
+        return;
+      }
+
+      devToolsCheckCountRef.current++;
+      
+      // ✅ FIXED: Only check after 5 iterations (5 seconds)
+      if (devToolsCheckCountRef.current < 5) {
+        return;
+      }
+
       const threshold = 160;
       const widthOpen =
         Math.abs(window.outerWidth - window.innerWidth) > threshold;
@@ -210,6 +232,7 @@ export function useScreenshotPrevention({
     // === CLEANUP ===
     return () => {
       clearInterval(devToolsInterval);
+      clearTimeout(initialLoadTimeout);
       if (blurTimeoutRef.current) clearTimeout(blurTimeoutRef.current);
       document.body.classList.remove('screenshot-blur');
       isBlurredRef.current = false;

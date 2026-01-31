@@ -2,8 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital,wght@0,400;0,600;1,400&family=Tangerine:wght@400;700&display=swap');
+/* ✅ REMOVED: @import (now in HTML head for better loading) */
 /* Clean Nature Theme - Fog & Mystery */
 * {
   margin: 0;
@@ -315,7 +314,7 @@ h2, h3, h4, h5, h6 {
 
 .empty-state::before,
 .empty-state::after {
-  content: '❁';
+  content: '❖';
   display: block;
   color: var(--gold-bright);
   font-size: 2rem;
@@ -389,13 +388,22 @@ h2, h3, h4, h5, h6 {
   outline-offset: 3px;
 }
 
+/* ✅ FIXED: Signature text with proper font loading and fallback */
 .signature-text {
-  font-family: 'Tangerine', cursive;
+  font-family: 'Tangerine', 'Brush Script MT', cursive;
   font-size: 2.5rem;
   color: var(--cream);
   opacity: 0.85;
   font-weight: 700;
   letter-spacing: 0.03em;
+  font-display: swap; /* Ensures font shows immediately with fallback */
+}
+
+/* ✅ NEW: Force font load for signature */
+@supports (font-display: swap) {
+  .signature-text {
+    font-display: swap;
+  }
 }
 
 /* ============================================================================
@@ -659,4 +667,163 @@ button:focus-visible {
     background: white;
     color: black;
   }
+}
+
+/* ============================================================================
+   SCREENSHOT PREVENTION & PDF IMAGE PROTECTION
+   Enhanced version - Maximum security
+   ============================================================================ */
+
+/* Prevent all selection and dragging */
+.protected-content,
+.protected-content * {
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-drag: none !important;
+  user-drag: none !important;
+  -khtml-user-select: none !important;
+}
+
+/* Specific protections for media elements */
+.protected-content img,
+.protected-content iframe,
+.protected-content canvas {
+  pointer-events: auto !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  user-select: none !important;
+  -webkit-touch-callout: none !important;
+  -webkit-user-drag: none !important;
+}
+
+/* Aggressive blur when screenshot detected */
+body.screenshot-blur {
+  filter: blur(30px) grayscale(100%) !important;
+  transition: filter 0.15s !important;
+}
+
+body.screenshot-blur * {
+  filter: blur(30px) grayscale(100%) !important;
+  pointer-events: none !important;
+}
+
+/* Warning overlay styles */
+.screenshot-warning-overlay {
+  position: fixed !important;
+  inset: 0 !important;
+  background: rgba(0, 0, 0, 0.98) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 999999 !important;
+  animation: fadeInScale 0.3s ease-out !important;
+  backdrop-filter: blur(20px) !important;
+}
+
+.screenshot-warning-content {
+  text-align: center !important;
+  color: white !important;
+  font-family: 'Lora', serif !important;
+  padding: 3rem !important;
+  border: 3px solid rgba(244, 208, 63, 0.6) !important;
+  border-radius: 20px !important;
+  background: rgba(10, 10, 10, 0.95) !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8) !important;
+  max-width: 90vw !important;
+}
+
+.screenshot-warning {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 99999;
+  animation: fadeIn 0.3s;
+}
+
+@keyframes fadeInScale {
+  from { 
+    opacity: 0; 
+    transform: scale(0.8) translateY(20px);
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Watermark overlays */
+.watermark-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0.04;
+  font-size: 12px;
+  font-family: monospace;
+  color: #000;
+  overflow: hidden;
+  user-select: none;
+  mix-blend-mode: multiply;
+}
+
+.watermark-grid {
+  position: absolute;
+  inset: -50%;
+  transform: rotate(-45deg);
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 300px);
+  grid-template-rows: repeat(auto-fill, 150px);
+  gap: 40px;
+  font-weight: 600;
+}
+
+.watermark-text {
+  white-space: nowrap;
+  overflow: hidden;
+  letter-spacing: 1px;
+}
+
+/* Mobile-specific protections */
+@media (max-width: 768px) {
+  .protected-content {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+  }
+
+  /* Prevent iOS share sheet */
+  .protected-content img,
+  .protected-content iframe {
+    -webkit-touch-callout: none !important;
+  }
+  
+  .protected-content,
+  .protected-content * {
+    -webkit-touch-callout: none !important;
+    -webkit-user-select: none !important;
+  }
+}
+
+/* Disable pointer events on watermarks */
+[class*="watermark"] {
+  pointer-events: none !important;
+  user-select: none !important;
+}
+
+/* Allow pinch zoom & pan on PDF canvases */
+.protected-content canvas {
+  touch-action: pinch-zoom !important;
 }

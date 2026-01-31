@@ -64,19 +64,19 @@ export function SecureImageViewer({
         </div>
       )}
 
-      {/* Additional CSS watermark overlays */}
+      {/* ✅ REDUCED: CSS watermark overlays - Only 5 rows × 3 watermarks = 15 total */}
       <div className="absolute inset-0 pointer-events-none z-10 select-none overflow-hidden">
         {/* Diagonal watermarks */}
-        {[...Array(12)].map((_, i) => (
+        {[...Array(3)].map((_, i) => (
           <div
             key={`overlay-${i}`}
             className="absolute whitespace-nowrap font-mono"
             style={{
-              top: `${(i * 10) % 100}%`,
+              top: `${i * 20}%`,
               left: '-10%',
               right: '-10%',
               transform: 'rotate(-45deg)',
-              color: 'rgba(255, 0, 0, 0.04)', // Very subtle red
+              color: 'rgba(255, 0, 0, 0.05)', // Slightly increased opacity
               fontSize: '14px',
               fontWeight: 600,
               letterSpacing: '2px',
@@ -84,8 +84,8 @@ export function SecureImageViewer({
               userSelect: 'none',
             }}
           >
-            {[...Array(8)].map((_, j) => (
-              <span key={j} className="inline-block mx-16">
+            {[...Array(3)].map((_, j) => (
+              <span key={j} className="inline-block mx-32">
                 {userEmail} • PROTECTED
               </span>
             ))}

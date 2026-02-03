@@ -11,16 +11,23 @@ export function useScreenshotPrevention({
   contentType,
   onAttempt,
 }: ScreenshotPreventionOptions) {
-  // ðŸ”¹ ADDED: central blur state
   const isBlurredRef = useRef(false);
   const blurTimeoutRef = useRef<number | null>(null);
   const devtoolsOpenRef = useRef(false);
+  const hasInitializedRef = useRef(false); // ✅ NEW: Prevent initial blur
 
   useEffect(() => {
-    // ðŸ”¹ ADDED: single blur controller
-    const triggerBlur = (duration = 800) => {
+    // ✅ FIXED: Central blur controller with safeguards
+    const triggerBlur = (duration = 800, source?: string) => {
+      // Don't blur during initial mount (first 2 seconds)
+      if (!hasInitializedRef.current) {
+        console.log('⏭️ Skipping blur during initialization from:', source);
+        return;
+      }
+
       if (isBlurredRef.current) return;
 
+      console.log('🔒 Blur triggered by:', source);
       isBlurredRef.current = true;
       document.body.classList.add('screenshot-blur');
 
@@ -33,6 +40,12 @@ export function useScreenshotPrevention({
         isBlurredRef.current = false;
       }, duration);
     };
+
+    // ✅ FIXED: Allow initialization period
+    setTimeout(() => {
+      hasInitializedRef.current = true;
+      console.log('✅ Screenshot prevention initialized');
+    }, 2000);
 
     // === KEYBOARD PREVENTION ===
     const preventKeyboardShortcuts = (e: KeyboardEvent) => {
@@ -56,7 +69,7 @@ export function useScreenshotPrevention({
         showWarning();
         logAttempt('keyboard');
         onAttempt?.();
-        triggerBlur(800);
+        triggerBlur(800, 'keyboard-shortcut');
       }
     };
 
@@ -66,7 +79,7 @@ export function useScreenshotPrevention({
       showWarning();
       logAttempt('right-click');
       onAttempt?.();
-      triggerBlur(800);
+      triggerBlur(800, 'right-click');
     };
 
     // === CLIPBOARD PREVENTION ===
@@ -76,7 +89,7 @@ export function useScreenshotPrevention({
       showWarning();
       logAttempt('clipboard');
       onAttempt?.();
-      triggerBlur(800);
+      triggerBlur(800, 'clipboard');
     };
 
     // === DRAG PREVENTION ===
@@ -84,33 +97,37 @@ export function useScreenshotPrevention({
       e.preventDefault();
     };
 
-    // === VISIBILITY CHANGE DETECTION ===
+    // ✅ FIXED: Visibility change - only trigger after init + when actually hidden
     const handleVisibilityChange = () => {
+      if (!hasInitializedRef.current) return; // Skip during init
+      
       if (document.hidden) {
-        triggerBlur(300);
+        triggerBlur(300, 'visibility-hidden');
         logAttempt('visibility-change');
         navigator.clipboard?.writeText('').catch(() => {});
       }
     };
 
-    // === DEVTOOLS DETECTION ===
+    // ✅ FIXED: DevTools detection with better threshold
     const detectDevTools = () => {
-      const threshold = 160;
-      const widthOpen =
-        Math.abs(window.outerWidth - window.innerWidth) > threshold;
-      const heightOpen =
-        Math.abs(window.outerHeight - window.innerHeight) > threshold;
+      if (!hasInitializedRef.current) return; // Skip during init
 
-      const open = widthOpen || heightOpen;
+      // More conservative threshold - only trigger if VERY different
+      const threshold = 200; // Increased from 160
+      const widthDiff = Math.abs(window.outerWidth - window.innerWidth);
+      const heightDiff = Math.abs(window.outerHeight - window.innerHeight);
+      
+      // Only trigger if BOTH dimensions are significantly different
+      const open = widthDiff > threshold && heightDiff > threshold;
 
       if (open && !devtoolsOpenRef.current) {
         devtoolsOpenRef.current = true;
-        triggerBlur(1200);
+        triggerBlur(1200, 'devtools-open');
         console.clear();
         logAttempt('devtools-open');
       }
 
-      if (!open) {
+      if (!open && devtoolsOpenRef.current) {
         devtoolsOpenRef.current = false;
       }
     };
@@ -132,7 +149,7 @@ export function useScreenshotPrevention({
       if (volumePressed && powerPressed) {
         showWarning();
         logAttempt('mobile-hardware-buttons');
-        triggerBlur(1000);
+        triggerBlur(1000, 'mobile-screenshot');
       }
     };
 
@@ -151,7 +168,7 @@ export function useScreenshotPrevention({
     const handleTouchEnd = () => {
       const duration = Date.now() - touchStartTime;
       if (duration > 50 && duration < 500) {
-        triggerBlur(500);
+        triggerBlur(500, 'multi-touch');
       }
     };
 
@@ -171,7 +188,7 @@ export function useScreenshotPrevention({
       warning.className = 'screenshot-warning-overlay';
       warning.innerHTML = `
         <div class="screenshot-warning-content">
-          <div class="text-6xl mb-4">âš ï¸</div>
+          <div class="text-6xl mb-4">⚠️</div>
           <h3 class="text-2xl font-bold mb-2">Protected Content</h3>
           <p>Screenshots and downloads are disabled</p>
           ${userEmail ? `<p class="text-xs mt-4 opacity-50">${userEmail}</p>` : ''}
@@ -183,7 +200,7 @@ export function useScreenshotPrevention({
 
     // === LOGGING ===
     const logAttempt = (method: string) => {
-      console.warn('ðŸš¨ Screenshot attempt detected:', {
+      console.warn('🚨 Screenshot attempt detected:', {
         user: userEmail || 'Unknown',
         method,
         timestamp: new Date().toISOString(),
@@ -205,9 +222,9 @@ export function useScreenshotPrevention({
     document.addEventListener('touchend', handleTouchEnd, { passive: false });
     document.addEventListener('touchstart', preventLongPress, { passive: false });
 
-    const devToolsInterval = setInterval(detectDevTools, 1000);
+    // ✅ FIXED: Less aggressive DevTools checking (every 2s instead of 1s)
+    const devToolsInterval = setInterval(detectDevTools, 2000);
 
-    // === CLEANUP ===
     return () => {
       // Remove ALL event listeners
       document.removeEventListener('keydown', preventKeyboardShortcuts, true);

@@ -60,7 +60,7 @@ export function ContactSupportContent() {
             <div className="space-y-2 md:space-y-3">
               <div className="flex items-center gap-2 md:gap-3">
                 <User size={20} className="md:w-6 md:h-6 text-green-fresh flex-shrink-0" />
-                <span className="font-lora text-cream text-sm md:text-base">Alankrita (@memorycraver)</span>
+                <span className="font-lora text-cream text-sm md:text-base">Alankrita</span>
               </div>
               
               <div className="flex items-start gap-2 md:gap-3">

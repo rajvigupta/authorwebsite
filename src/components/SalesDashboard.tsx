@@ -136,7 +136,7 @@ export function SalesDashboard() {
   const exportToCSV = () => {
     const headers = ['Date', 'Customer Name', 'Email', 'Chapter', 'Book', 'Amount', 'Payment ID', 'Status'];
     const rows = purchases.map((p) => [
-      new Date(p.purchased_at).toLocaleDateString(),
+      new Date(p.purchased_at).toLocaleDateString('en-GB'),
       p.user_name,
       p.user_email,
       `Ch ${p.chapter_number}: ${p.chapter_title}`,

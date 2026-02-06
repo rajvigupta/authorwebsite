@@ -584,9 +584,9 @@ export function BookView() {
         </div>
 
         {/* Book Comments */}
-        <div className="bg-gothic-mid rounded-lg p-6 border border-accent-maroon/20">
+        <div className="bg-gothic-mid rounded-lg p-4 md:p-6 border border-accent-maroon/20">
           <h2 className="text-xl font-cinzel text-primary mb-4">Discussion</h2>
-          <div className="max-h-96 overflow-y-auto">
+          <div className="md:max-h-96 md:overflow-y-auto">
             <BookCommentSection bookId={bookId!} />
           </div>
         </div>

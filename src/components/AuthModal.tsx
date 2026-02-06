@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Mail, Lock, User, HelpCircle } from 'lucide-react';
+import { X, Mail, Lock, User, HelpCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useToast } from './Toast';
 import { ForgotPasswordModal } from './ForgotPasswordModal.tsx';
@@ -25,6 +25,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
+  
+  // ✅ NEW: Password visibility state
+  const [showPassword, setShowPassword] = useState(false);
+  
   const { signIn, signUp } = useAuth();
   const toast = useToast();
 
@@ -83,6 +87,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setFullName('');
     setSecurityQuestion(SECURITY_QUESTIONS[0]);
     setSecurityAnswer('');
+    setShowPassword(false); // Reset password visibility
   };
 
   return (
@@ -130,7 +135,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User size={18} className="text-green-fresh" />
+                        <User size={18} className="text-black" />
                       </div>
                       <input
                         type="text"
@@ -150,7 +155,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail size={18} className="text-green-fresh" />
+                      <Mail size={18} className="text-black" />
                     </div>
                     <input
                       type="email"
@@ -163,23 +168,32 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </div>
                 </div>
 
+                {/* ✅ FIXED: Password field with eye toggle */}
                 <div>
                   <label className="block text-sm font-medium text-cream mb-2 font-lora">
                     Password
                   </label>
                   <div className="relative">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock size={18} className="text-green-fresh" />
+                      <Lock size={18} className="text-black" />
                     </div>
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
+                      className="w-full pl-10 pr-12 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
                       placeholder="••••••••"
                       required
                       minLength={6}
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-black hover:text-gold transition-colors"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                   {mode === 'signup' && (
                     <p className="mt-1 text-xs text-cream-dark font-lora">
@@ -196,7 +210,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                       </label>
                       <div className="relative">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <HelpCircle size={18} className="text-green-fresh" />
+                          <HelpCircle size={18} className="text-black" />
                         </div>
                         <select
                           value={securityQuestion}

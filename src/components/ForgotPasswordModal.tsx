@@ -175,7 +175,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-gold py-3 rounded-lg font-semibold disabled:opacity-50 transition-all font-cinzel text-sm uppercase tracking-wider"
+              className="w-full btn-gold py-3 rounded-lg font-semibold disabled:opacity-50 transition-all font-cinzel text-sm tracking-wider"
             >
               {loading ? 'Please wait...' : 'Continue'}
             </button>
@@ -227,7 +227,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 btn-gold py-3 rounded-lg font-semibold disabled:opacity-50 transition-all font-cinzel text-sm uppercase tracking-wider"
+                className="flex-1 btn-gold py-3 rounded-lg font-semibold disabled:opacity-50 transition-all font-cinzel text-sm tracking-wider"
               >
                 {loading ? 'Verifying...' : 'Verify'}
               </button>
@@ -289,7 +289,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
             <button
               type="submit"
               disabled={loading}
-              className="w-full btn-gold py-3 rounded-lg font-semibold disabled:opacity-50 transition-all font-cinzel text-sm uppercase tracking-wider"
+              className="w-full btn-gold py-3 rounded-lg font-semibold disabled:opacity-50 transition-all font-cinzel text-sm tracking-wider"
             >
               {loading ? 'Resetting...' : 'Reset Password'}
             </button>
@@ -301,7 +301,7 @@ export function ForgotPasswordModal({ isOpen, onClose }: ForgotPasswordModalProp
             onClick={handleClose}
             className="text-gold hover:text-gold-bright text-sm transition-colors font-lora"
           >
-            ← Back to Sign In
+            ←  Back to Sign In
           </button>
         </div>
 

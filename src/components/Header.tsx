@@ -50,12 +50,10 @@ export function Header({ onAuthClick }: HeaderProps) {
               <BookOpen className="text-primary" size={24} />
             </div>
             <div>
-              <h1 className="text-lg md:text-2xl font-cinzel font-bold text-primary tracking-wide">
+              <h1 className="text-lg md:text-3xl font-cormorant  text-primary tracking-wide">
                 memorycraver
               </h1>
-              <p className="text-xs md:text-sm font-cormorant italic text-text-muted hidden sm:block">
-                some tagline here ???
-              </p>
+              
             </div>
           </button>
 

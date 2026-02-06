@@ -29,7 +29,7 @@ export function Footer() {
                 © {new Date().getFullYear()} ALANKRITA. All rights reserved.
               </p>
               <p className="text-xs font-cormorant italic text-text-dim mt-1">
-                Immerse yourself in captivating narratives
+                Immerse yourself in captivating stories
               </p>
             </div>
 
@@ -40,7 +40,7 @@ export function Footer() {
                 <span>Developed with</span>
                 <Heart size={25} className="text-accent-maroon fill-accent-maroon animate-pulse" />
                 <span>by</span>
-                <span className="font-cinzel font-semibold text-primary">
+                <span className="font-cinzel font-semibold text-primary text-lg">
                   Rajvi
                 </span>
               </div>
@@ -54,7 +54,7 @@ export function Footer() {
                   className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-all border border-transparent hover:border-primary/30"
                   aria-label="GitHub Profile"
                 >
-                  <Github size={18} />
+                  <Github size={25} />
                 </a>
                 <a
                   href="https://www.linkedin.com/in/rajvi-gupta-555464315/"
@@ -63,7 +63,7 @@ export function Footer() {
                   className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-all border border-transparent hover:border-primary/30"
                   aria-label="LinkedIn Profile"
                 >
-                  <Linkedin size={18} />
+                  <Linkedin size={25} />
                 </a>
               </div>
             </div>

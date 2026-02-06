@@ -1,14 +1,36 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ✅ REMOVED: @import (now in HTML head for better loading) */
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
 /* Clean Nature Theme - Fog & Mystery */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
+
+/* =========================
+   FONT ROLES (SINGLE SOURCE OF TRUTH)
+   ========================= */
+
+.font-cinzel {
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.08em;
+}
+
+.font-cormorant {
+  font-family: 'Cormorant Garamond', serif;
+  letter-spacing: 0.02em;
+}
+
+.font-lora {
+  font-family: 'Lora', serif;
+  letter-spacing: normal;
+}
+
 
 :root {
   /* Nature Gold Palette */
@@ -101,7 +123,7 @@ h1 {
 }
 
 h2, h3, h4, h5, h6 {
-  font-family: 'Cinzel', serif;
+  font-family: 'Cormorant Garamond', serif;
   color: var(--gold);
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -352,6 +374,7 @@ h2, h3, h4, h5, h6 {
 .text-primary { color: var(--gold-bright) !important; }
 .text-text-light { color: var(--cream) !important; }
 .text-text-muted { color: var(--cream-dark) !important; }
+.text-text-li { color : var(--forest-darkest) !important; }
 
 /* Border utilities */
 .border-accent-maroon,
@@ -388,22 +411,13 @@ h2, h3, h4, h5, h6 {
   outline-offset: 3px;
 }
 
-/* ✅ FIXED: Signature text with proper font loading and fallback */
 .signature-text {
-  font-family: 'Tangerine', 'Brush Script MT', cursive;
+  font-family: 'Tangerine', cursive;
   font-size: 2.5rem;
   color: var(--cream);
   opacity: 0.85;
   font-weight: 700;
   letter-spacing: 0.03em;
-  font-display: swap; /* Ensures font shows immediately with fallback */
-}
-
-/* ✅ NEW: Force font load for signature */
-@supports (font-display: swap) {
-  .signature-text {
-    font-display: swap;
-  }
 }
 
 /* ============================================================================
@@ -427,23 +441,23 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ===== LIGHT THEME (Classic White) - SCOPED ===== */
 .reading-theme-light {
-  background: #faf9f7 !important;
+  background: #f5f1e8 !important; /* Soft cream like old book pages */
 }
 
 /* Only affect content areas, not modals */
 .reading-theme-light .prose,
 .reading-theme-light .max-w-4xl {
-  background: #faf9f7 !important;
+  background: #f5f1e8 !important;
 }
 
 .reading-theme-light .bg-gothic-darkest,
 .reading-theme-light .bg-gothic-dark,
 .reading-theme-light .bg-gothic-mid {
-  background: #faf9f7 !important;
+  background: #f5f1e8 !important;
 }
 
 .reading-theme-light .bg-gothic-dark\/95 {
-  background: rgba(250, 249, 247, 0.95) !important;
+  background: rgba(245, 241, 232, 0.95) !important;
 }
 
 /* Scoped text colors - only in prose */
@@ -451,13 +465,13 @@ h1, h2, h3, h4, h5, h6 {
 .reading-theme-light .prose .text-text-muted,
 .reading-theme-light .prose p,
 .reading-theme-light .prose span {
-  color: #1f2937 !important;
+  color: #2d2519 !important; /* Darker text for better readability */
 }
 
 /* Bold text in light theme */
 .reading-theme-light .prose strong,
 .reading-theme-light .prose .font-bold {
-  color: #000000 !important;
+  color: #1a1410 !important; /* Even darker for bold */
   font-weight: 700 !important;
 }
 
@@ -466,16 +480,16 @@ h1, h2, h3, h4, h5, h6 {
 .reading-theme-light .prose h2,
 .reading-theme-light .prose h3,
 .reading-theme-light .prose h4 {
-  color: #1f2937 !important;
+  color: #8b6914 !important; /* Warm brown for headings */
 }
 
 .reading-theme-light .prose em {
-  color: #374151 !important;
+  color: #4a3f2f !important;
 }
 
 .reading-theme-light .border-accent-maroon\/20,
 .reading-theme-light .border-accent-maroon\/30 {
-  border-color: #e5e7eb !important;
+  border-color: #d4c4a8 !important; /* Soft tan border */
 }
 
 /* ===== DARK THEME (Dark Mode) - SCOPED ===== */
@@ -529,24 +543,60 @@ h1, h2, h3, h4, h5, h6 {
    READING CONTROLS - Visible in All Themes
    ============================================================================ */
 
-/* Light theme controls */
+ /* Light theme controls - FIXED FOR VISIBILITY */
 .reading-theme-light .bg-gothic-mid\/95,
 .reading-theme-light .bg-gothic-mid\/90 {
-  background: rgba(240, 240, 240, 0.95) !important;
-  border-color: rgba(0, 0, 0, 0.1) !important;
+  background: rgba(235, 228, 215, 0.95) !important; /* Tan background */
+  border-color: rgba(139, 105, 20, 0.2) !important; /* Brown border */
 }
 
 .reading-theme-light .bg-gothic-dark {
-  background: rgba(230, 230, 230, 1) !important;
+  background: rgba(220, 210, 190, 1) !important; /* Darker tan */
 }
 
-.reading-theme-light .text-primary {
-  color: #d4af37 !important;
+
+.reading-theme-light .text-primary,
+.reading-theme-light button .text-primary,
+.reading-theme-light .font-lora,
+.reading-theme-light .font-cinzel {
+  color: #5a4a2f !important; /* Dark brown text */
+}
+
+
+.reading-theme-light .bg-primary\/20 {
+  background: rgba(139, 105, 20, 0.15) !important;
+}
+
+.reading-theme-light .bg-primary\/10 {
+  background: rgba(139, 105, 20, 0.08) !important;
 }
 
 .reading-theme-light .border-primary\/30 {
-  border-color: rgba(212, 175, 55, 0.3) !important;
+  border-color: rgba(139, 105, 20, 0.3) !important;
 }
+
+
+.reading-theme-light .bg-primary {
+  background: #c9a63a !important;
+  color: #1a1410 !important;
+}
+
+.reading-theme-light .bg-gothic-mid {
+  background: rgba(235, 228, 215, 1) !important;
+}
+
+
+.reading-theme-light button,
+.reading-theme-light button span,
+.reading-theme-light button div,
+.reading-theme-light label {
+  color: #2d2519 !important;
+}
+
+.reading-theme-light .text-gothic-darkest {
+  color: #1a1410 !important;
+}
+
 
 /* Dark theme controls */
 .reading-theme-dark .bg-gothic-mid\/95,
@@ -568,9 +618,6 @@ h1, h2, h3, h4, h5, h6 {
    ============================================================================ */
 
 /* Ensure auth modal colors are NOT affected by theme CSS */
-.bg-gradient-to-br {
-  /* Prevent theme overrides on auth modal */
-}
 
 .bg-gradient-to-br .text-cream,
 .bg-gradient-to-br .text-gold,
@@ -601,19 +648,22 @@ label.text-sm {
   color: var(--cream) !important;
 }
 
-/* ============================================================================
-   PROSE STYLING - Scoped to Reader
-   ============================================================================ */
-
 .prose {
   max-width: none;
 }
 
-.prose h1,
+.prose h1{
+  font-family: 'Cinzel', serif;
+  color: var(--gold-bright);
+  margin-top: 2em;
+  margin-bottom: 1em;
+}
+
+
 .prose h2,
 .prose h3,
 .prose h4 {
-  font-family: 'Cinzel', serif;
+  font-family: 'Cormorant Garamond', serif;
   color: var(--gold-bright);
   margin-top: 2em;
   margin-bottom: 1em;

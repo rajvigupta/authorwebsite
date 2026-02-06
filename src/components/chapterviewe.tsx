@@ -65,11 +65,11 @@ export function StandaloneChapterView() {
   const getThemeDetails = (themeType: 'gothic' | 'light' | 'dark') => {
     switch(themeType) {
       case 'gothic':
-        return { icon: '🌲', label: 'Gothic Green', desc: 'Mystical' };
+        return { icon: '🌲', label: 'Gothic Green' };
       case 'light':
-        return { icon: '📖', label: 'Classic White', desc: 'Traditional' };
+        return { icon: '📖', label: 'Classic White'};
       case 'dark':
-        return { icon: '🌙', label: 'Dark Mode', desc: 'Night Reading' };
+        return { icon: '🌙', label: 'Dark Mode' };
     }
   };
 
@@ -325,9 +325,7 @@ export function StandaloneChapterView() {
                             <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'gothic' ? 'text-primary' : 'text-text-light'}`}>
                               Gothic Green
                             </div>
-                            <div className="text-xs text-text-muted font-cormorant italic truncate">
-                              Mystical forest
-                            </div>
+                            
                           </div>
                           {theme === 'gothic' && (
                             <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
@@ -349,9 +347,7 @@ export function StandaloneChapterView() {
                             <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'light' ? 'text-primary' : 'text-text-light'}`}>
                               Classic White
                             </div>
-                            <div className="text-xs text-text-muted font-cormorant italic truncate">
-                              Traditional book
-                            </div>
+                          
                           </div>
                           {theme === 'light' && (
                             <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
@@ -373,9 +369,7 @@ export function StandaloneChapterView() {
                             <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'dark' ? 'text-primary' : 'text-text-light'}`}>
                               Dark Mode
                             </div>
-                            <div className="text-xs text-text-muted font-cormorant italic truncate">
-                              Night reading
-                            </div>
+                  
                           </div>
                           {theme === 'dark' && (
                             <div className="text-xs text-primary font-cinzel shrink-0">✓</div>

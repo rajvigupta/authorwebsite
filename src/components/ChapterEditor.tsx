@@ -330,7 +330,7 @@ const handleSubmit = async (e: React.FormEvent) => {
             )}
           </div>
         </div>
-        <div>
+<div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Price (INR)
           </label>
@@ -341,8 +341,14 @@ const handleSubmit = async (e: React.FormEvent) => {
             step="0.01"
             value={formData.price}
             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            disabled={formData.is_free}
+            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800"
           />
+          {formData.is_free && (
+            <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-semibold">
+              💚 Price is automatically ₹0 for free chapters
+            </p>
+          )}
         </div>
       </div>
 

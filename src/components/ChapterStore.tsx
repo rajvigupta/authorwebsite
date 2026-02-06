@@ -87,6 +87,7 @@ export function ChapterStore() {
     }
   };
 
+  // ✅ FIXED: Simplified - just check purchases, don't try to look up chapter
   const isPurchased = (chapterId: string) => {
     return purchases.some((p) => p.chapter_id === chapterId);
   };
@@ -113,7 +114,7 @@ export function ChapterStore() {
         )}
 
         <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-cinzel font-bold text-primary mb-4 text-gold-glow">
+          <h1 className="text-4xl md:text-5xl font-cormorant font-bold text-primary mb-4 text-gold-glow">
             <TypewriterText 
               text="Stories by Alankrita - @memorycraver"
               delay={80}
@@ -171,9 +172,7 @@ export function ChapterStore() {
                       </p>
 
                       <div className="flex items-center justify-between">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          Individual chapter purchases
-                        </span>
+                        
                         <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
                           View Series →
                         </span>
@@ -195,7 +194,9 @@ export function ChapterStore() {
             </h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {chapters.map((chapter) => {
-                const purchased = isPurchased(chapter.id);
+                
+                const purchased = chapter.is_free ? false : isPurchased(chapter.id);
+                
                 return (
                   <div
                     key={chapter.id}
@@ -220,6 +221,7 @@ export function ChapterStore() {
                           Chapter {chapter.chapter_number}
                         </span>
 
+                        {/* ✅ Badge logic - now guaranteed to work because purchased = false for free chapters */}
                         {chapter.is_free ? (
                           <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-bold">
                             FREE

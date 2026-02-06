@@ -98,15 +98,27 @@ export function BookView() {
     }
   };
 
-  const isChapterPurchased = (chapterId: string) => {
-    if (profile?.role === 'author') return true;
-
+  // ✅ FIXED: Separate checks for free vs purchased
+  const isChapterFree = (chapterId: string) => {
     const chapter = chapters.find(ch => ch.id === chapterId);
-    if (chapter?.is_free) return true;
+    return chapter?.is_free || false;
+  };
+
+  const isChapterPurchased = (chapterId: string) => {
     return purchases.some(p => p.chapter_id === chapterId);
   };
 
-  const unpurchasedChapters = chapters.filter(ch => !isChapterPurchased(ch.id));
+  // ✅ FIXED: Can access if: author OR free OR purchased
+  const canAccessChapter = (chapterId: string) => {
+    if (profile?.role === 'author') return true;
+    if (isChapterFree(chapterId)) return true;
+    return isChapterPurchased(chapterId);
+  };
+
+
+  const unpurchasedChapters = chapters.filter(ch => 
+    !isChapterFree(ch.id) && !isChapterPurchased(ch.id)
+  );
   const totalRemainingCost = unpurchasedChapters.reduce((sum, ch) => sum + ch.price, 0);
 
   const handlePurchaseChapter = async (chapter: Chapter) => {
@@ -199,7 +211,7 @@ export function BookView() {
             }
           } catch (error) {
             console.error('Verification error:', error);
-            toast.error('Payment verification failed. Please contact support.'); // ✅ NEW
+            toast.error('Payment verification failed. Please contact support.');
           } finally {
             setPurchasing(false);
           }
@@ -344,7 +356,7 @@ export function BookView() {
   };
 
   const handleReadChapter = (chapter: Chapter, index: number) => {
-    if (!isChapterPurchased(chapter.id) && profile?.role !== 'author') {
+    if (!canAccessChapter(chapter.id) && profile?.role !== 'author') {
       handlePurchaseChapter(chapter);
       return;
     }
@@ -504,7 +516,9 @@ export function BookView() {
           ) : (
             <div className="grid gap-3">
               {chapters.map((chapter, index) => {
+                const isFree = isChapterFree(chapter.id);
                 const purchased = isChapterPurchased(chapter.id);
+                
                 return (
                   <div
                     key={chapter.id}
@@ -525,7 +539,13 @@ export function BookView() {
                           <span className="text-primary font-cinzel text-sm">
                             Chapter {chapter.chapter_number}
                           </span>
-                          {purchased ? (
+                          
+                          {/* ✅ FIXED: Show FREE badge first, then Owned, then price */}
+                          {isFree ? (
+                            <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-bold">
+                              FREE
+                            </span>
+                          ) : purchased ? (
                             <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full font-lora">
                               Owned
                             </span>
@@ -544,7 +564,7 @@ export function BookView() {
                         </p>
                       </div>
                       <div className="ml-4 flex-shrink-0">
-                        {purchased ? (
+                        {canAccessChapter(chapter.id) ? (
                           <button className="px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-cinzel text-sm">
                             Read
                           </button>

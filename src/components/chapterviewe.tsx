@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Lock, ShoppingCart } from 'lucide-react';
+import { ArrowLeft, Lock, ShoppingCart, Palette } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { RichTextViewer } from './RichTextViewer';
@@ -24,20 +24,20 @@ export function StandaloneChapterView() {
   const [purchase, setPurchase] = useState<Purchase | null>(null);
   const [loading, setLoading] = useState(true);
   const [purchasing, setPurchasing] = useState(false);
+  const [showThemeSelector, setShowThemeSelector] = useState(false);
   const { user, profile } = useAuth();
   const toast = useToast();
 
- 
-const [theme, setTheme] = useState<'gothic' | 'light' | 'dark'>('gothic');
+  const [theme, setTheme] = useState<'gothic' | 'light' | 'dark'>('gothic');
 
-useEffect(() => {
-  const savedTheme = localStorage.getItem('reading-theme') as 'gothic' | 'light' | 'dark';
-  if (savedTheme) {
-    setTheme(savedTheme);
-  }
-}, []);
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('reading-theme') as 'gothic' | 'light' | 'dark';
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
+  }, []);
 
-useEffect(() => {
+  useEffect(() => {
     if (chapterId) {
       loadChapterData();
     } else {
@@ -49,6 +49,31 @@ useEffect(() => {
     userEmail: user?.email,
     contentType: chapter?.content_type || 'text',
   });
+
+  const handleThemeChange = (newTheme: 'gothic' | 'light' | 'dark') => {
+    setTheme(newTheme);
+    localStorage.setItem('reading-theme', newTheme);
+    setShowThemeSelector(false);
+  };
+
+  const getThemeClass = () => {
+    if (theme === 'light') return 'reading-theme-light';
+    if (theme === 'dark') return 'reading-theme-dark';
+    return '';
+  };
+
+  const getThemeDetails = (themeType: 'gothic' | 'light' | 'dark') => {
+    switch(themeType) {
+      case 'gothic':
+        return { icon: '🌲', label: 'Gothic Green', desc: 'Mystical' };
+      case 'light':
+        return { icon: '📖', label: 'Classic White', desc: 'Traditional' };
+      case 'dark':
+        return { icon: '🌙', label: 'Dark Mode', desc: 'Night Reading' };
+    }
+  };
+
+  const currentTheme = getThemeDetails(theme);
 
   const loadChapterData = async () => {
     if (!chapterId) return;
@@ -232,18 +257,137 @@ useEffect(() => {
   const purchased = isPurchased();
 
   return (
-    <div className="min-h-screen bg-gothic-darkest">
+    <div className={`min-h-screen bg-gothic-darkest ${getThemeClass()}`}>
       
-      {/* Sticky Header */}
+      {/* Sticky Header with Theme Selector */}
       <div className="sticky top-0 z-10 bg-gothic-dark/95 backdrop-blur-sm border-b border-accent-maroon/30">
         <div className="max-w-4xl mx-auto px-3 md:px-4 py-3">
-          <button
-            onClick={handleBack}
-            className="flex items-center gap-2 text-text-muted hover:text-primary transition-colors"
-          >
-            <ArrowLeft size={20} />
-            <span className="font-lora">Back</span>
-          </button>
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 text-text-muted hover:text-primary transition-colors shrink-0"
+            >
+              <ArrowLeft size={20} />
+              <span className="font-lora text-sm md:text-base hidden sm:inline">Back</span>
+            </button>
+
+            {/* Title in center (only show when purchased) */}
+            {purchased && (
+              <div className="text-center flex-1 px-2 md:px-4 min-w-0 overflow-hidden">
+                <h1 className="text-sm md:text-lg font-cinzel text-primary truncate">
+                  Ch {chapter.chapter_number}: {chapter.title}
+                </h1>
+              </div>
+            )}
+
+            {/* Theme Selector (only show when purchased) */}
+            {purchased && (
+              <div className="flex items-center gap-1 md:gap-2 shrink-0">
+                <div className="relative z-[101]">
+                  <button
+                    onClick={() => setShowThemeSelector(!showThemeSelector)}
+                    className="flex items-center gap-1 md:gap-2 px-2 md:px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-all border border-primary/30"
+                    title="Change reading theme"
+                  >
+                    <Palette size={16} className="md:w-5 md:h-5" />
+                    <span className="text-xl md:text-2xl">{currentTheme.icon}</span>
+                    <span className="hidden lg:inline font-lora text-sm">{currentTheme.label}</span>
+                  </button>
+
+                  {showThemeSelector && (
+                    <>
+                      <div 
+                        className="fixed inset-0 z-[102]"
+                        onClick={() => setShowThemeSelector(false)}
+                      />
+                      
+                      <div 
+                        className="absolute right-0 mt-2 bg-gothic-mid rounded-lg shadow-2xl border-2 border-accent-maroon/30 overflow-hidden w-[260px] md:min-w-[280px] z-[103]"
+                      >
+                        <div className="p-2">
+                          <p className="text-xs font-cinzel text-primary px-3 py-2 tracking-wider">
+                            Reading Themes
+                          </p>
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleThemeChange('gothic');
+                          }}
+                          className={`w-full px-3 md:px-4 py-3 md:py-4 text-left flex items-center gap-2 md:gap-3 hover:bg-gothic-dark transition-colors ${
+                            theme === 'gothic' ? 'bg-primary/10 border-l-4 border-primary' : ''
+                          }`}
+                        >
+                          <span className="text-2xl md:text-3xl">🌲</span>
+                          <div className="flex-1 min-w-0">
+                            <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'gothic' ? 'text-primary' : 'text-text-light'}`}>
+                              Gothic Green
+                            </div>
+                            <div className="text-xs text-text-muted font-cormorant italic truncate">
+                              Mystical forest
+                            </div>
+                          </div>
+                          {theme === 'gothic' && (
+                            <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleThemeChange('light');
+                          }}
+                          className={`w-full px-3 md:px-4 py-3 md:py-4 text-left flex items-center gap-2 md:gap-3 hover:bg-gothic-dark transition-colors ${
+                            theme === 'light' ? 'bg-primary/10 border-l-4 border-primary' : ''
+                          }`}
+                        >
+                          <span className="text-2xl md:text-3xl">📖</span>
+                          <div className="flex-1 min-w-0">
+                            <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'light' ? 'text-primary' : 'text-text-light'}`}>
+                              Classic White
+                            </div>
+                            <div className="text-xs text-text-muted font-cormorant italic truncate">
+                              Traditional book
+                            </div>
+                          </div>
+                          {theme === 'light' && (
+                            <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleThemeChange('dark');
+                          }}
+                          className={`w-full px-3 md:px-4 py-3 md:py-4 text-left flex items-center gap-2 md:gap-3 hover:bg-gothic-dark transition-colors ${
+                            theme === 'dark' ? 'bg-primary/10 border-l-4 border-primary' : ''
+                          }`}
+                        >
+                          <span className="text-2xl md:text-3xl">🌙</span>
+                          <div className="flex-1 min-w-0">
+                            <div className={`font-lora font-semibold text-sm md:text-base ${theme === 'dark' ? 'text-primary' : 'text-text-light'}`}>
+                              Dark Mode
+                            </div>
+                            <div className="text-xs text-text-muted font-cormorant italic truncate">
+                              Night reading
+                            </div>
+                          </div>
+                          {theme === 'dark' && (
+                            <div className="text-xs text-primary font-cinzel shrink-0">✓</div>
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -311,33 +455,27 @@ useEffect(() => {
         ) : (
           <>
             {/* Chapter Content */}
-{/* Chapter Content */}
-<div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
-  {chapter.rich_content && Array.isArray(chapter.rich_content) ? (
-    // Check if it's image-based pages
-    chapter.rich_content.length > 0 && chapter.rich_content[0]?.type === 'page-image' ? (
-      // ✅ Show image viewer for converted PDFs
-      <SecureImageViewer
-        pages={chapter.rich_content as any}
-        userEmail={user?.email || 'Unknown User'}
-        chapterTitle={chapter.title}
-      />
-    ) : (
-      // Show rich text viewer for normal text content
-      <RichTextViewer 
-        content={chapter.rich_content as any}
-        userEmail={user?.email}
-        theme={theme}
-      />
-    )
-  ) : (
-    <div className="text-center py-12 text-text-muted font-lora">
-      No content available
-    </div>
-  )}
-</div>
-           
-
+            <div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
+              {chapter.rich_content && Array.isArray(chapter.rich_content) ? (
+                chapter.rich_content.length > 0 && chapter.rich_content[0]?.type === 'page-image' ? (
+                  <SecureImageViewer
+                    pages={chapter.rich_content as any}
+                    userEmail={user?.email || 'Unknown User'}
+                    chapterTitle={chapter.title}
+                  />
+                ) : (
+                  <RichTextViewer 
+                    content={chapter.rich_content as any}
+                    userEmail={user?.email}
+                    theme={theme}
+                  />
+                )
+              ) : (
+                <div className="text-center py-12 text-text-muted font-lora">
+                  No content available
+                </div>
+              )}
+            </div>
 
             {/* Ornamental Divider */}
             <div className="ornamental-divider my-12"></div>

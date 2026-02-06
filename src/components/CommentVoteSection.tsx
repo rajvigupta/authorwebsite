@@ -211,7 +211,7 @@ const handleDeleteComment = async (commentId: string) => {
                   {comment.profile.full_name}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {new Date(comment.created_at).toLocaleDateString()}
+                  {new Date(comment.created_at).toLocaleDateString('en-GB')}
                 </p>
               </div>
               {comment.user_id === user.id && (

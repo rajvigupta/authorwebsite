@@ -85,6 +85,8 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
     } catch (error) {
       console.error('Error posting comment:', error);
       toast.error('Failed to post comment');
+    }
+    finally{
       setLoading(false);
     }
   };
@@ -144,56 +146,58 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Vote and Comment Count */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <div className="flex items-center gap-4 mb-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 md:p-6">
+        {/* Mobile: Stack vertically, Desktop: Horizontal */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-4">
           <button
             onClick={handleVote}
             disabled={loading}
-            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`flex items-center justify-center sm:justify-start gap-2 px-3 md:px-4 py-2 rounded-lg font-medium transition-colors text-sm md:text-base ${
               hasVoted
                 ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
                 : ' text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             }`}
           >
             <ThumbsUp 
-              size={20} 
-              className={`transition-all ${
+              size={18} 
+              className={`md:w-5 md:h-5 transition-all ${
                 hasVoted 
                   ? 'fill-green-600 text-green-600' 
                   : 'fill-none text-gray-600 dark:text-gray-400'
               }`}
             />
-            {votes.length} {votes.length === 1 ? 'Like' : 'Likes'}
+            <span>{votes.length} {votes.length === 1 ? 'Like' : 'Likes'}</span>
           </button>
-          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
-            <MessageSquare size={20} />
+          <span className="text-gray-600 dark:text-gray-400 flex items-center justify-center sm:justify-start gap-2 text-sm md:text-base">
+            <MessageSquare size={18} className="md:w-5 md:h-5" />
             {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
           </span>
         </div>
 
         {/* Comment Input - Only if logged in */}
         {user ? (
-          <form onSubmit={handleComment} className="flex gap-2">
+          <form onSubmit={handleComment} className="flex flex-col sm:flex-row gap-2">
             <input
               type="text"
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Share your thoughts about this book series..."
-              className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              placeholder="Share your thoughts..."
+              className="flex-1 px-3 md:px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm md:text-base"
             />
             <button
               type="submit"
               disabled={loading || !newComment.trim()}
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 disabled:opacity-50"
+              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center justify-center gap-2 text-sm md:text-base"
             >
-              <Send size={20} />
+              <Send size={18} className="md:w-5 md:h-5" />
+              <span className="sm:hidden">Post</span>
             </button>
           </form>
         ) : (
-          <div className="text-center py-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="text-center py-3 md:py-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base">
               Sign in to join the discussion
             </p>
           </div>
@@ -201,35 +205,38 @@ export function BookCommentSection({ bookId }: BookCommentSectionProps) {
       </div>
 
       {/* Comments List */}
-      <div className="space-y-4">
+      <div className="space-y-3 md:space-y-4">
         {comments.length === 0 ? (
-          <div className="text-center py-8 bg-white dark:bg-gray-800 rounded-lg">
-            <p className="text-gray-600 dark:text-gray-400">
+          <div className="text-center py-6 md:py-8 bg-white dark:bg-gray-800 rounded-lg">
+            <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base px-4">
               No comments yet. Be the first to share your thoughts!
             </p>
           </div>
         ) : (
           comments.map((comment) => (
-            <div key={comment.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <p className="font-medium text-gray-900 dark:text-white">
+            <div key={comment.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-3 md:p-4">
+              <div className="flex justify-between items-start gap-2 mb-2">
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-gray-900 dark:text-white text-sm md:text-base truncate">
                     {comment.profile.full_name}
                   </p>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {new Date(comment.created_at).toLocaleDateString()}
+                  <p className="text-xs md:text-sm text-gray-500 dark:text-gray-400">
+                    {new Date(comment.created_at).toLocaleDateString('en-GB')}
                   </p>
                 </div>
                 {user && comment.user_id === user.id && (
                   <button
                     onClick={() => handleDeleteComment(comment.id)}
-                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
+                    className="text-red-600 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 flex-shrink-0"
+                    aria-label="Delete comment"
                   >
-                    <Trash2 size={18} />
+                    <Trash2 size={16} className="md:w-[18px] md:h-[18px]" />
                   </button>
                 )}
               </div>
-              <p className="text-gray-700 dark:text-gray-300">{comment.content}</p>
+              <p className="text-gray-700 dark:text-gray-300 text-sm md:text-base break-words whitespace-pre-wrap">
+                {comment.content}
+              </p>
             </div>
           ))
         )}

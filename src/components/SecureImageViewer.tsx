@@ -63,37 +63,6 @@ export function SecureImageViewer({
           </div>
         </div>
       )}
-
-      {/* ✅ REDUCED: CSS watermark overlays - Only 5 rows × 3 watermarks = 15 total */}
-      <div className="absolute inset-0 pointer-events-none z-10 select-none overflow-hidden">
-        {/* Diagonal watermarks */}
-        {[...Array(3)].map((_, i) => (
-          <div
-            key={`overlay-${i}`}
-            className="absolute whitespace-nowrap font-mono"
-            style={{
-              top: `${i * 20}%`,
-              left: '-10%',
-              right: '-10%',
-              transform: 'rotate(-45deg)',
-              color: 'rgba(255, 0, 0, 0.05)', // Slightly increased opacity
-              fontSize: '14px',
-              fontWeight: 600,
-              letterSpacing: '2px',
-              pointerEvents: 'none',
-              userSelect: 'none',
-            }}
-          >
-            {[...Array(3)].map((_, j) => (
-              <span key={j} className="inline-block mx-32">
-                {userEmail} • PROTECTED
-              </span>
-            ))}
-          </div>
-        ))}
-      </div>
-
-      {/* Page images - continuous scroll - ✅ FIXED FOR MOBILE */}
       <div className="space-y-0 relative z-0">
         {pages.map((page) => (
           <div 

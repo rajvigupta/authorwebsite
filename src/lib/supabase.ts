@@ -46,15 +46,17 @@ export type Book = {
 };
 
 // Fixed: ContentBlock is the individual block type
+// ✅ FIXED: Added 'page-image' type for PDF conversion
 export type ContentBlock = {
   id: string;
-  type: 'heading' | 'paragraph' | 'image';
+  type: 'heading' | 'paragraph' | 'image' | 'page-image';
   content: string;
   level?: number;
   imageUrl?: string;
   alt?: string;
+  url?: string;
+  pageNumber?: number;
 };
-
 // RichContent is an array of ContentBlocks
 export type RichContent = ContentBlock[];
 

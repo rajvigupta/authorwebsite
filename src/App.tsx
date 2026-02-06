@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ToastProvider } from './components/Toast'; // ✅ NEW
+import { ToastProvider } from './components/Toast';
 import { Header } from './components/Header';
 import { Footer } from './components/footer';
 import { ChapterStore } from './components/ChapterStore';
@@ -10,10 +10,16 @@ import { BookView } from './components/BookViewer';
 import { StandaloneChapterView } from './components/chapterviewe';
 import { AuthModal } from './components/AuthModal';
 import { FloatingPages } from './components/FloatingPages';
+import { useLocation } from 'react-router-dom';
 
 function AppContent() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { loading, profile } = useAuth();
+  const location = useLocation();
+  const shouldShowFloatingPages = 
+    !location.pathname.startsWith('/dashboard') &&
+    !location.pathname.startsWith('/book/') &&
+    !location.pathname.startsWith('/chapter/');
 
   if (loading) {
     return (
@@ -30,7 +36,8 @@ function AppContent() {
 
   return (
     <div className="min-h-screen bg-gothic-darkest flex flex-col">
-      <FloatingPages />
+      {/* ✅ Only show floating pages on the main store page */}
+      {shouldShowFloatingPages && <FloatingPages />}
       
       <Header onAuthClick={() => setShowAuthModal(true)} />
 
@@ -56,7 +63,7 @@ function AppContent() {
 function App() {
   return (
     <BrowserRouter>
-      <ToastProvider> {/* ✅ NEW - Wrap everything */}
+      <ToastProvider>
         <AuthProvider>
           <AppContent />
         </AuthProvider>

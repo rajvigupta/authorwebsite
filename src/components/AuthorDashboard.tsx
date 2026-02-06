@@ -5,9 +5,10 @@ import { BookChapterManager } from './BookChapterManager';
 import { AuthorProfileSection } from './AuthorProfileSection';
 import { ChapterManagement } from './ChapterManagement';
 import { SalesDashboard } from './SalesDashboard';
-import { Book, FileText, User, IndianRupee } from 'lucide-react';
+import { ReaderManagement } from './ReaderManagement';
+import { Book, FileText, User, IndianRupee, Users } from 'lucide-react';
 
-type Tab = 'profile' | 'books' | 'chapters'| 'sales';
+type Tab = 'profile' | 'books' | 'chapters' | 'sales' | 'readers';
 
 export function AuthorDashboard() {
   const [activeTab, setActiveTab] = useState<Tab>('profile');
@@ -123,6 +124,22 @@ export function AuthorDashboard() {
               <IndianRupee size={16} className="md:w-[18px] md:h-[18px]" />
               Sales
             </button>
+
+            {/* NEW READERS TAB */}
+            <button
+              onClick={() => {
+                setActiveTab('readers');
+                setManagingBookId(null);
+              }}
+              className={`px-4 md:px-6 py-3 md:py-4 text-xs md:text-sm font-medium border-b-2 flex items-center gap-1.5 md:gap-2 whitespace-nowrap ${
+                activeTab === 'readers'
+                  ? 'border-primary-600 text-primary-600 dark:text-primary-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+              }`}
+            >
+              <Users size={16} className="md:w-[18px] md:h-[18px]" />
+              Readers
+            </button>
           </nav>
         </div>
 
@@ -146,6 +163,7 @@ export function AuthorDashboard() {
           )}
           {activeTab === 'chapters' && <ChapterManagement />}
           {activeTab === 'sales' && <SalesDashboard />}
+          {activeTab === 'readers' && <ReaderManagement />}
         </div>
       </div>
     </div>

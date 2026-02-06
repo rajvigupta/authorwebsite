@@ -525,17 +525,17 @@ export function BookView() {
                     onClick={() => handleReadChapter(chapter, index)}
                     className="bg-gothic-mid p-4 rounded-lg border border-accent-maroon/20 hover:border-primary/50 transition-all cursor-pointer group"
                   >
-                    <div className="flex items-center gap-4">
-                      {chapter.cover_image_url && (
-                        <img
-                          src={chapter.cover_image_url}
-                          alt={chapter.title}
-                          className="w-20 h-28 object-cover rounded border-2 border-accent-maroon/30 flex-shrink-0"
-                        />
-                      )}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                     {chapter.cover_image_url && (
+                      <img
+                       src={chapter.cover_image_url}
+                        alt={chapter.title}
+                          className="w-full sm:w-24 h-40 sm:h-32 object-cover rounded border-2 border-accent-maroon/30 flex-shrink-0"
+                            />
+                          )}
                       
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-3 mb-2">
+                      <div className="flex-1 min-w-0 w-full">
+                        <div className="flex flex-wrap items-center gap-2 mb-2">
                           <span className="text-primary font-cinzel text-sm">
                             Chapter {chapter.chapter_number}
                           </span>
@@ -563,24 +563,30 @@ export function BookView() {
                           {chapter.description}
                         </p>
                       </div>
-                      <div className="ml-4 flex-shrink-0">
-                        {canAccessChapter(chapter.id) ? (
-                          <button className="px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-cinzel text-sm">
-                            Read
-                          </button>
-                        ) : (
-                          <button className="px-4 py-2 bg-accent-maroon/20 text-accent-maroon-light rounded-lg hover:bg-accent-maroon/30 transition-colors font-cinzel text-sm flex items-center gap-2">
-                            <ShoppingCart size={16} />
-                            Buy
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                       <div className="w-full sm:w-auto flex-shrink-0">
+              {purchased ? (
+                <button className="w-full sm:w-auto px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-cinzel text-sm">
+                  Read
+                </button>
+              ) : chapter.is_free ? (
+                <button className="w-full sm:w-auto px-4 py-2 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/30 transition-colors font-cinzel text-sm">
+                  Read Free
+                </button>
+              ) : (
+                <button className="w-full sm:w-auto px-4 py-2 bg-accent-maroon/20 text-accent-maroon-light rounded-lg hover:bg-accent-maroon/30 transition-colors font-cinzel text-sm flex items-center justify-center gap-2">
+                  <ShoppingCart size={16} />
+                  Buy
+                </button>
+              )}
             </div>
-          )}
+          </div>
+        </div>
+      );
+    })}
+  </div>
+)}
+                      
+                     
         </div>
 
         {/* Book Comments */}

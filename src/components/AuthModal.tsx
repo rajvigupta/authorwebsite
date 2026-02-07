@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Mail, Lock, User, HelpCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { useToast } from './Toast';
 import { ForgotPasswordModal } from './ForgotPasswordModal.tsx';
+ 
 
 type AuthModalProps = {
   isOpen: boolean;
@@ -29,6 +30,19 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const { signIn, signUp } = useAuth();
   const toast = useToast();
+
+  useEffect(() => {
+     if (isOpen) {
+       setMode('signin');
+       setEmail('');
+       setPassword('');
+       setFullName('');
+       setSecurityQuestion(SECURITY_QUESTIONS[0]);
+       setSecurityAnswer('');
+       setError('');
+       setShowForgotPassword(false);
+     }
+   }, [isOpen, User]);
 
   if (!isOpen && !showForgotPassword) return null;
 

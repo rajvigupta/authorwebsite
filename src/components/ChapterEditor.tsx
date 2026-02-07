@@ -248,8 +248,8 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg p-6 space-y-6">
-      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+    <form onSubmit={handleSubmit} className="bg-gray-800 rounded-lg p-6 space-y-6">
+      <h3 className="text-xl font-semibold text-white">
         {editingChapter ? 'Edit Chapter' : 'Create New Chapter'}
         {bookId ? ' for Book' : ' (Standalone)'}
       </h3>
@@ -257,7 +257,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* Content Type Selection */}
       {!editingChapter && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
+          <label className="block text-sm font-medium text-gray-300 mb-3">
             Content Type
           </label>
           <div className="grid grid-cols-2 gap-4">
@@ -267,12 +267,12 @@ const handleSubmit = async (e: React.FormEvent) => {
               className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-colors ${
                 contentType === 'pdf'
                   ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                  : 'border-gray-600 hover:border-gray-400'
               }`}
             >
               <File size={32} className={contentType === 'pdf' ? 'text-primary-600' : 'text-gray-400'} />
-              <span className="font-medium text-gray-900 dark:text-white">PDF Upload</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Upload a PDF file</span>
+              <span className="font-medium text-white">PDF Upload</span>
+              <span className="text-xs text-gray-400">Upload a PDF file</span>
             </button>
             <button
               type="button"
@@ -280,12 +280,12 @@ const handleSubmit = async (e: React.FormEvent) => {
               className={`p-4 border-2 rounded-lg flex flex-col items-center gap-2 transition-colors ${
                 contentType === 'text'
                   ? 'border-primary-600 bg-primary-50 dark:bg-primary-900/20'
-                  : 'border-gray-300 dark:border-gray-600 hover:border-gray-400'
+                  : 'border-gray-600 hover:border-gray-400'
               }`}
             >
               <FileText size={32} className={contentType === 'text' ? 'text-primary-600' : 'text-gray-400'} />
-              <span className="font-medium text-gray-900 dark:text-white">Text</span>
-              <span className="text-xs text-gray-500 dark:text-gray-400">Write directly</span>
+              <span className="font-medium text-white">Text</span>
+              <span className="text-xs text-gray-400">Write directly</span>
             </button>
           </div>
         </div>
@@ -294,7 +294,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* Chapter Number with Auto-numbering */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Chapter Number
           </label>
           <div className="space-y-2">
@@ -307,7 +307,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                 setFormData({ ...formData, chapter_number: e.target.value });
                 setAutoNumbering(false); // Disable auto when manually changed
               }}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
             />
             {!editingChapter && (
               <div className="flex items-center gap-2">
@@ -323,7 +323,7 @@ const handleSubmit = async (e: React.FormEvent) => {
                   }}
                   className="w-4 h-4"
                 />
-                <label htmlFor="auto-number" className="text-xs text-gray-600 dark:text-gray-400">
+                <label htmlFor="auto-number" className="text-xs text-gray-400">
                   Auto-number (Next: {suggestedNumber})
                 </label>
               </div>
@@ -331,7 +331,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           </div>
         </div>
 <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Price (INR)
           </label>
           <input
@@ -342,10 +342,10 @@ const handleSubmit = async (e: React.FormEvent) => {
             value={formData.price}
             onChange={(e) => setFormData({ ...formData, price: e.target.value })}
             disabled={formData.is_free}
-            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800"
+            className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-gray-100 dark:disabled:bg-gray-800"
           />
           {formData.is_free && (
-            <p className="text-xs text-green-600 dark:text-green-400 mt-1 font-semibold">
+            <p className="text-xs text-green-400 mt-1 font-semibold">
               💚 Price is automatically ₹0 for free chapters
             </p>
           )}
@@ -370,14 +370,14 @@ const handleSubmit = async (e: React.FormEvent) => {
           />
           <label htmlFor="is-free" className="flex-1 cursor-pointer">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
+              <span className="text-sm font-medium text-white">
                 Make this chapter FREE
               </span>
               <span className="text-xs bg-green-600 text-white px-2 py-0.5 rounded-full font-semibold">
                 FREE
               </span>
             </div>
-            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 mt-1">
               {formData.is_free 
                 ? 'This chapter will be accessible to all users without payment'
                 : 'Check this to make the chapter free for all readers'
@@ -390,7 +390,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
           Title
         </label>
         <input
@@ -398,13 +398,13 @@ const handleSubmit = async (e: React.FormEvent) => {
           required
           value={formData.title}
           onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
         />
       </div>
 
       {/* Description - Required for standalone, optional for book chapters */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
           Description {!bookId && <span className="text-red-500">*</span>} {bookId && <span className="text-gray-500 text-xs">(Optional)</span>}
         </label>
         <textarea
@@ -412,7 +412,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           rows={3}
           value={formData.description}
           onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
           placeholder={bookId ? "Optional description for this chapter..." : "Describe what readers can expect..."}
         />
       </div>
@@ -420,7 +420,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* PDF Upload */}
 {contentType === 'pdf' && (
   <div>
-    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+    <label className="block text-sm font-medium text-gray-300 mb-2">
       PDF File (will be converted to protected images)
     </label>
     
@@ -434,7 +434,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         }}
         required={!editingChapter && richContent.length === 0}
         disabled={processingPdf}
-        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
       />
       
       {/* Progress indicator */}
@@ -442,11 +442,11 @@ const handleSubmit = async (e: React.FormEvent) => {
         <div className="mt-4">
           <div className="flex items-center gap-2 mb-2">
             <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-600"></div>
-            <span className="text-sm text-gray-600 dark:text-gray-400">
+            <span className="text-sm text-gray-400">
               Converting PDF to protected images... {conversionProgress}%
             </span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
+          <div className="w-full bg-gray-700 rounded-full h-2">
             <div
               className="bg-primary-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${conversionProgress}%` }}
@@ -472,7 +472,7 @@ const handleSubmit = async (e: React.FormEvent) => {
     </div>
     
     {editingChapter && editingChapter.content_type === 'pdf' && (
-      <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+      <p className="text-xs text-gray-400 mt-2">
         Note: Upload a new PDF to replace the current one
       </p>
     )}
@@ -484,7 +484,7 @@ const handleSubmit = async (e: React.FormEvent) => {
       {/* Rich Text Editor */}
       {contentType === 'text' && (
         <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-gray-300 mb-2">
             Chapter Content
           </label>
           <RichTextEditor initialContent={richContent} onChange={setRichContent} />
@@ -493,14 +493,14 @@ const handleSubmit = async (e: React.FormEvent) => {
 
       {/* Cover Image */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label className="block text-sm font-medium text-gray-300 mb-2">
           Cover Image (Optional)
         </label>
         <input
           type="file"
           accept="image/*"
           onChange={(e) => setCoverImage(e.target.files?.[0] || null)}
-          className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+          className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
         />
       </div>
 
@@ -513,7 +513,7 @@ const handleSubmit = async (e: React.FormEvent) => {
           onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
           className="w-4 h-4"
         />
-        <label htmlFor="publish-chapter" className="text-sm text-gray-700 dark:text-gray-300">
+        <label htmlFor="publish-chapter" className="text-sm text-gray-300">
           Publish immediately
         </label>
       </div>
@@ -530,7 +530,7 @@ const handleSubmit = async (e: React.FormEvent) => {
         <button
           type="button"
           onClick={onCancel}
-          className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+          className="px-6 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700"
         >
           Cancel
         </button>

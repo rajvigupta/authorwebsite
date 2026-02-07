@@ -11,8 +11,17 @@ import { StandaloneChapterView } from './components/chapterviewe';
 import { AuthModal } from './components/AuthModal';
 import { FloatingPages } from './components/FloatingPages';
 import { useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 
 function AppContent() {
+  
+  useEffect(() => {
+  // Force dark mode permanently
+  document.documentElement.classList.add('dark');
+}, []);
+
+
+
   const [showAuthModal, setShowAuthModal] = useState(false);
   const { loading, profile } = useAuth();
   const location = useLocation();

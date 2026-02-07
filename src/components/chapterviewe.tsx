@@ -392,7 +392,7 @@ export function StandaloneChapterView() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="text-primary font-cinzel">Chapter {chapter.chapter_number}</span>
             {chapter.is_free ? (
-              <span className="text-2xl font-bold text-green-600 dark:text-green-400 font-cinzel">
+              <span className="text-2xl font-bold text-green-400 font-cinzel">
                 FREE
               </span>
             ) : (

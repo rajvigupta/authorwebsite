@@ -25,10 +25,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
-  
-  // ✅ NEW: Password visibility state
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const { signIn, signUp } = useAuth();
   const toast = useToast();
 
@@ -42,38 +40,27 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     try {
       if (mode === 'signin') {
         await signIn(email, password);
-        toast.success(`Welcome back! 🎉`, 4000);
+        toast.success('Welcome back! 🎉', 4000);
         onClose();
       } else {
         if (!fullName.trim()) {
           setError('Please enter your full name');
-          toast.error('Please enter your full name');
           setLoading(false);
           return;
         }
         if (!securityAnswer.trim()) {
           setError('Please provide an answer to the security question');
-          toast.error('Please provide a security answer');
           setLoading(false);
           return;
         }
-        
+
         await signUp(email, password, fullName, securityQuestion, securityAnswer);
-        
-        toast.success(
-          '🎊 Account created successfully! Please check your email to verify your account.',
-          8000
-        );
-        toast.info(
-          'If you face any issues, contact the developer from the Contact Support section.',
-          10000
-        );
-        
+        toast.success('🎊 Account created! Check your email to verify.', 8000);
         onClose();
       }
     } catch (err: any) {
       setError(err.message || 'An error occurred');
-      toast.error(err.message || 'An error occurred. Please try again.');
+      toast.error(err.message || 'An error occurred');
     } finally {
       setLoading(false);
     }
@@ -87,26 +74,26 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     setFullName('');
     setSecurityQuestion(SECURITY_QUESTIONS[0]);
     setSecurityAnswer('');
-    setShowPassword(false); // Reset password visibility
+    setShowPassword(false);
   };
+
+  const inputClass =
+    'w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg ' +
+    'focus:ring-2 focus:ring-gold focus:border-gold ' +
+    'bg-white text-gray-900 placeholder-cream-dark/70 ' +
+    'transition-all font-lora';
+
+  const iconClass = 'text-forest-dark/70';
 
   return (
     <>
       {!showForgotPassword && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-forest-mid to-forest-dark rounded-2xl shadow-2xl max-w-md w-full p-8 relative transform transition-all max-h-[90vh] overflow-y-auto border-2 border-gold/30">
-            
-            <div className="corner-ornament corner-ornament-tl"></div>
-            <div className="corner-ornament corner-ornament-tr"></div>
-            <div className="corner-ornament corner-ornament-bl"></div>
-            <div className="corner-ornament corner-ornament-br"></div>
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-forest-mid to-forest-dark rounded-2xl shadow-2xl max-w-md w-full p-8 relative border-2 border-gold/30 max-h-[90vh] overflow-y-auto">
 
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50"></div>
-            
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-cream hover:text-gold transition-colors z-10"
-              aria-label="Close"
+              className="absolute top-4 right-4 text-cream hover:text-gold"
             >
               <X size={24} />
             </button>
@@ -115,193 +102,144 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <div className="inline-block p-3 bg-gold/10 rounded-full mb-4 border border-gold/30">
                 <User size={32} className="text-gold" />
               </div>
-              
-              <h2 className="text-3xl font-bold text-gold-bright mb-2 font-cinzel">
+              <h2 className="text-3xl font-bold text-gold-bright font-cinzel">
                 {mode === 'signin' ? 'Welcome Back' : 'Join Us'}
               </h2>
-              <p className="text-cream-dark text-sm font-cormorant italic">
+              <p className="text-cream-dark text-sm font-cormorant italic mt-1">
                 {mode === 'signin'
                   ? 'Sign in to access your stories'
                   : 'Begin your journey into captivating tales'}
               </p>
             </div>
 
-            <div className="space-y-4">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {mode === 'signup' && (
-                  <div>
-                    <label className="block text-sm font-medium text-cream mb-2 font-lora">
-                      Name
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User size={18} className="text-black" />
-                      </div>
-                      <input
-                        type="text"
-                        value={fullName}
-                        onChange={(e) => setFullName(e.target.value)}
-                        className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
-                        placeholder="Enter your name"
-                        required
-                      />
-                    </div>
-                  </div>
-                )}
+            <form onSubmit={handleSubmit} className="space-y-4">
 
+              {mode === 'signup' && (
                 <div>
-                  <label className="block text-sm font-medium text-cream mb-2 font-lora">
-                    Email Address
-                  </label>
+                  <label className="block text-sm text-cream mb-2">Name</label>
                   <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Mail size={18} className="text-black" />
-                    </div>
+                    <User size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
                     <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-dark/50 transition-all font-lora"
-                      placeholder="you@example.com"
-                      required
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                      className={inputClass}
+                      placeholder="Enter your name"
                     />
                   </div>
-                </div>
-
-                {/* ✅ FIXED: Password field with eye toggle */}
-                <div>
-                  <label className="block text-sm font-medium text-cream mb-2 font-lora">
-                    Password
-                  </label>
-                  <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                      <Lock size={18} className="text-black" />
-                    </div>
-                    <input
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-10 pr-12 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black placeholder-cream-dark/50 transition-all font-lora"
-                      placeholder="••••••••"
-                      required
-                      minLength={6}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute inset-y-0 right-0 pr-3 flex items-center text-black hover:text-gold transition-colors"
-                      aria-label={showPassword ? "Hide password" : "Show password"}
-                    >
-                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                    </button>
-                  </div>
-                  {mode === 'signup' && (
-                    <p className="mt-1 text-xs text-cream-dark font-lora">
-                      Must be at least 6 characters
-                    </p>
-                  )}
-                </div>
-
-                {mode === 'signup' && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium text-cream mb-2 font-lora">
-                        Security Question
-                      </label>
-                      <div className="relative">
-                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                          <HelpCircle size={18} className="text-black" />
-                        </div>
-                        <select
-                          value={securityQuestion}
-                          onChange={(e) => setSecurityQuestion(e.target.value)}
-                          className="w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg focus:ring-2 focus:ring-gold focus:border-gold bg-forest-light text-black transition-all appearance-none font-lora"
-                          required
-                        >
-                          {SECURITY_QUESTIONS.map((question) => (
-                            <option key={question} value={question} className="bg-forest-mid">
-                              {question}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <p className="mt-1 text-xs text-cream-dark font-lora">
-                        Used for password recovery
-                      </p>
-                    </div>
-
-                    <div>
-                      <label className="block text-sm font-medium text-cream mb-2 font-lora">
-                        Your Answer
-                      </label>
-                      <input
-                        type="text"
-                        value={securityAnswer}
-                        onChange={(e) => setSecurityAnswer(e.target.value)}
-                        className="w-full px-4 py-3 border-2 border-green-fresh/30 rounded-lg text-black placeholder-cream-dark/50 transition-all font-lora"
-                        placeholder="Enter your answer"
-                        required
-                      />
-                      <p className="mt-1 text-xs text-cream-dark font-lora italic">
-                        Remember this - you'll need it to reset your password
-                      </p>
-                    </div>
-                  </>
-                )}
-
-                {error && (
-                  <div className="bg-red-900/30 border-2 border-red-500/50 text-red-200 text-sm p-3 rounded-lg flex items-start gap-2 font-lora">
-                    <span className="font-semibold">Error:</span>
-                    <span>{error}</span>
-                  </div>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full btn-gold py-3 rounded-lg font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-gold font-cinzel text-sm uppercase tracking-wider"
-                >
-                  {loading
-                    ? 'Please wait...'
-                    : mode === 'signin'
-                    ? 'Sign In'
-                    : 'Create Account'}
-                </button>
-              </form>
-
-              {mode === 'signin' && (
-                <div className="text-center">
-                  <button
-                    onClick={() => setShowForgotPassword(true)}
-                    className="text-gold hover:text-gold-bright text-sm font-medium transition-colors font-lora"
-                  >
-                    Forgot password?
-                  </button>
                 </div>
               )}
 
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-green-fresh/30"></div>
-                </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-3 bg-forest-dark text-cream-dark font-lora">or</span>
+              <div>
+                <label className="block text-sm text-cream mb-2">Email Address</label>
+                <div className="relative">
+                  <Mail size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className={inputClass}
+                    placeholder="you@example.com"
+                  />
                 </div>
               </div>
 
-              <div className="text-center">
+              <div>
+                <label className="block text-sm text-cream mb-2">Password</label>
+                <div className="relative">
+                  <Lock size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className={`${inputClass} pr-12`}
+                    placeholder="Enter password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-forest-dark/70 hover:text-gold"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </div>
+
+              {mode === 'signup' && (
+                <>
+                  <div>
+                    <label className="block text-sm text-cream mb-2">Security Question</label>
+                    <div className="relative">
+                      <HelpCircle size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
+                      <select
+                        value={securityQuestion}
+                        onChange={(e) => setSecurityQuestion(e.target.value)}
+                        className={`${inputClass} appearance-none`}
+                      >
+                        {SECURITY_QUESTIONS.map(q => (
+                          <option key={q}>{q}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm text-cream mb-2">Your Answer</label>
+                    <input
+                      value={securityAnswer}
+                      onChange={(e) => setSecurityAnswer(e.target.value)}
+                      className="w-full px-4 py-3 border-2 border-green-fresh/30 rounded-lg bg-white text-gray-900 placeholder-cream-dark/70"
+                      placeholder="Enter your answer"
+                    />
+                  </div>
+                </>
+              )}
+
+              {error && (
+                <div className="bg-red-900/30 border border-red-500/50 text-red-200 text-sm p-3 rounded">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full btn-gold py-3 rounded-lg font-cinzel uppercase tracking-wider hover:brightness-110"
+              >
+                {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
+              </button>
+            </form>
+
+            {mode === 'signin' && (
+              <div className="text-center mt-4">
                 <button
-                  onClick={handleModeSwitch}
-                  className="text-gold hover:text-gold-bright text-sm font-medium transition-colors font-lora"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-gold hover:text-gold-bright text-sm"
                 >
-                  {mode === 'signin'
-                    ? "Don't have an account? Sign up"
-                    : 'Already have an account? Sign in'}
+                  Forgot password?
                 </button>
+              </div>
+            )}
+
+            {/* OR divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-green-fresh/40" />
+              </div>
+              <div className="relative flex justify-center">
+                <span className="px-3 bg-forest-dark text-cream-dark text-xs">or</span>
               </div>
             </div>
 
-            <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gold to-transparent opacity-50"></div>
+            <div className="text-center">
+              <button
+                onClick={handleModeSwitch}
+                className="text-gold hover:text-gold-bright text-sm"
+              >
+                {mode === 'signin'
+                  ? "Don't have an account? Sign up"
+                  : 'Already have an account? Sign in'}
+              </button>
+            </div>
           </div>
         </div>
       )}

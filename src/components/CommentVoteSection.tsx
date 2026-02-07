@@ -141,8 +141,8 @@ const handleDeleteComment = async (commentId: string) => {
 
   if (!user || !isPurchased) {
     return (
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6 text-center">
-        <p className="text-gray-600 dark:text-gray-400">
+      <div className="bg-gray-800 rounded-lg shadow p-6 text-center">
+        <p className="text-gray-400">
           {!user ? 'Sign in to view comments and votes' : 'Purchase this chapter to comment and vote'}
         </p>
       </div>
@@ -151,10 +151,10 @@ const handleDeleteComment = async (commentId: string) => {
 
   return (
     <div className="space-y-6">
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      <div className="bg-gray-800 rounded-lg shadow p-6">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Chapter Discussion
-          <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+          <span className="text-sm font-normal text-gray-400 ml-2">
             (Only visible to chapter owners)
           </span>
         </h3>
@@ -165,20 +165,20 @@ const handleDeleteComment = async (commentId: string) => {
             disabled={loading}
             className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
               hasVoted
-                ? 'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-white'
-                : ' text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
+                ? 'bg-gray-700 dark:bg-gray-700 text-white'
+                : ' text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600'
             }`}
           >
             <ThumbsUp size={20} 
             className={`transition-all ${
                 hasVoted 
                   ? 'fill-green-600 text-green-600' 
-                  : 'fill-none text-gray-600 dark:text-gray-400'
+                  : 'fill-none text-gray-400'
               }`}
             />
             {votes.length} {votes.length === 1 ? 'Vote' : 'Votes'}
           </button>
-          <span className="text-gray-600 dark:text-gray-400 flex items-center gap-2">
+          <span className="text-gray-400 flex items-center gap-2">
             <MessageSquare size={20} />
             {comments.length} {comments.length === 1 ? 'Comment' : 'Comments'}
           </span>
@@ -190,7 +190,7 @@ const handleDeleteComment = async (commentId: string) => {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Add a comment..."
-            className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+            className="flex-1 px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
           />
           <button
             type="submit"
@@ -204,13 +204,13 @@ const handleDeleteComment = async (commentId: string) => {
 
       <div className="space-y-4">
         {comments.map((comment) => (
-          <div key={comment.id} className="bg-white dark:bg-gray-800 rounded-lg shadow p-4">
+          <div key={comment.id} className="bg-gray-800 rounded-lg shadow p-4">
             <div className="flex justify-between items-start mb-2">
               <div>
-                <p className="font-medium text-gray-900 dark:text-white">
+                <p className="font-medium text-white">
                   {comment.profile.full_name}
                 </p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
+                <p className="text-sm text-gray-400">
                   {new Date(comment.created_at).toLocaleDateString('en-GB')}
                 </p>
               </div>
@@ -223,7 +223,7 @@ const handleDeleteComment = async (commentId: string) => {
                 </button>
               )}
             </div>
-            <p className="text-gray-700 dark:text-gray-300">{comment.content}</p>
+            <p className="text-gray-300">{comment.content}</p>
           </div>
         ))}
       </div>

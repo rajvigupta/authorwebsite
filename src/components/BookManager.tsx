@@ -238,7 +238,7 @@ const togglePublish = async (book: BookType) => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Manage Books</h2>
+        <h2 className="text-2xl font-bold text-white">Manage Books</h2>
         <button
           onClick={() => setShowForm(!showForm)}
           className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
@@ -249,13 +249,13 @@ const togglePublish = async (book: BookType) => {
       </div>
 
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg p-6 space-y-4">
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <form onSubmit={handleSubmit} className="bg-gray-800 rounded-lg p-6 space-y-4">
+          <h3 className="text-xl font-semibold text-white">
             {editingBook ? 'Edit Book' : 'Create New Book'}
           </h3>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Title
             </label>
             <input
@@ -263,12 +263,12 @@ const togglePublish = async (book: BookType) => {
               required
               value={formData.title}
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Description
             </label>
             <textarea
@@ -276,12 +276,12 @@ const togglePublish = async (book: BookType) => {
               rows={4}
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Author Note (Optional)
             </label>
             <textarea
@@ -289,19 +289,19 @@ const togglePublish = async (book: BookType) => {
               value={formData.author_note}
               onChange={(e) => setFormData({ ...formData, author_note: e.target.value })}
               placeholder="Add a personal note about this book series..."
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-300 mb-2">
               Cover Image
             </label>
             <input
               type="file"
               accept="image/*"
               onChange={(e) => setCoverImage(e.target.files?.[0] || null)}
-              className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-4 py-2 border border-gray-600 rounded-lg bg-gray-700 text-white"
             />
           </div>
 
@@ -313,7 +313,7 @@ const togglePublish = async (book: BookType) => {
               onChange={(e) => setFormData({ ...formData, is_published: e.target.checked })}
               className="w-4 h-4"
             />
-            <label htmlFor="publish" className="text-sm text-gray-700 dark:text-gray-300">
+            <label htmlFor="publish" className="text-sm text-gray-300">
               Publish immediately
             </label>
           </div>
@@ -329,7 +329,7 @@ const togglePublish = async (book: BookType) => {
             <button
               type="button"
               onClick={resetForm}
-              className="px-6 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
+              className="px-6 py-2 border border-gray-600 text-gray-300 rounded-lg hover:bg-gray-700"
             >
               Cancel
             </button>
@@ -339,15 +339,15 @@ const togglePublish = async (book: BookType) => {
 
       <div className="grid gap-4">
        {books.length === 0 ? (
-  <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-lg">
+  <div className="text-center py-12 bg-gray-800 rounded-lg">
     <Book size={48} className="mx-auto text-gray-400 mb-4" />
-    <p className="text-gray-600 dark:text-gray-400">No books yet. Create your first book!</p>
+    <p className="text-gray-400">No books yet. Create your first book!</p>
   </div>
 ) : (
   books.map((book) => (
     <div
       key={book.id}
-      className="bg-white dark:bg-gray-800 rounded-lg p-4 md:p-6 flex flex-col md:flex-row gap-3 md:gap-4 break-words" // Added break-words
+      className="bg-gray-800 rounded-lg p-4 md:p-6 flex flex-col md:flex-row gap-3 md:gap-4 break-words" // Added break-words
     >
       {book.cover_image_url && (
         <img
@@ -359,23 +359,23 @@ const togglePublish = async (book: BookType) => {
       <div className="flex-1 min-w-0"> {/* Added min-w-0 for text truncation */}
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="text-lg md:text-xl font-bold text-gray-900 dark:text-white break-words">
+            <h3 className="text-lg md:text-xl font-bold text-white break-words">
               {book.title}
             </h3>
-            <p className="text-gray-600 dark:text-gray-400 mt-1 text-sm md:text-base break-words">
+            <p className="text-gray-400 mt-1 text-sm md:text-base break-words">
               {book.description}
             </p>
             <div className="flex flex-wrap items-center gap-2 md:gap-3 mt-3">
               <span
                 className={`inline-block px-2 md:px-3 py-1 rounded-full text-xs md:text-sm ${
                   book.is_published
-                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                    : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'
+                    ? 'bg-green-900 text-green-200'
+                    : 'bg-gray-700 text-gray-300'
                 }`}
               >
                 {book.is_published ? 'Published' : 'Draft'}
               </span>
-              <span className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+              <span className="text-xs md:text-sm text-gray-400">
                 {chapterCounts[book.id] || 0} chapter{chapterCounts[book.id] !== 1 ? 's' : ''}
               </span>
             </div>
@@ -383,21 +383,21 @@ const togglePublish = async (book: BookType) => {
           <div className="flex md:flex-col gap-2 flex-shrink-0">
             <button
               onClick={() => togglePublish(book)}
-              className="p-2 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              className="p-2 text-gray-400 hover:text-white dark:hover:text-white"
               title={book.is_published ? 'Unpublish' : 'Publish'}
             >
               {book.is_published ? <EyeOff size={18} className="md:w-5 md:h-5" /> : <Eye size={18} className="md:w-5 md:h-5" />}
             </button>
             <button
               onClick={() => handleEdit(book)}
-              className="p-2 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
+              className="p-2 text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
               title="Edit book details"
             >
               <Edit2 size={18} className="md:w-5 md:h-5" />
             </button>
             <button
               onClick={() => handleDelete(book.id)}
-              className="p-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300"
+              className="p-2 text-red-400 hover:text-red-800 dark:hover:text-red-300"
               title="Delete book"
             >
               <Trash2 size={18} className="md:w-5 md:h-5" />
@@ -408,7 +408,7 @@ const togglePublish = async (book: BookType) => {
         {/* Manage Chapters Button */}
         <button
           onClick={() => onManageChapters?.(book.id, book.title)}
-          className="mt-4 w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-900/20 text-primary-600 dark:text-primary-400 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors text-sm"
+          className="mt-4 w-full md:w-auto flex items-center justify-center gap-2 px-4 py-2 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/30 transition-colors text-sm"
         >
           <FileText size={16} />
           Manage Chapters ({chapterCounts[book.id] || 0})

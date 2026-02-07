@@ -128,7 +128,7 @@ export function ChapterStore() {
         {/* Book Series */}
         {books.length > 0 && (
           <div className="mb-12">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <Book size={28} />
               Book Series
             </h2>
@@ -139,7 +139,7 @@ export function ChapterStore() {
                   <div
                     key={book.id}
                     onClick={() => navigate(`/book/${book.id}`)}
-                    className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-[1.02] transition-transform"
+                    className="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-[1.02] transition-transform"
                   >
                     {book.cover_image_url ? (
                       <img
@@ -155,25 +155,25 @@ export function ChapterStore() {
 
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
+                        <span className="text-sm font-medium text-primary-600">
                           Book Series
                         </span>
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-gray-400">
                           {chapterCount} chapter{chapterCount !== 1 ? 's' : ''}
                         </span>
                       </div>
 
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      <h3 className="text-xl font-bold text-white mb-2">
                         {book.title}
                       </h3>
 
-                      <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-3">
                         {book.description}
                       </p>
 
                       <div className="flex items-center justify-between">
                         
-                        <span className="text-sm font-medium text-primary-600 dark:text-primary-400">
+                        <span className="text-sm font-medium text-primary-600">
                           View Series →
                         </span>
                       </div>
@@ -188,7 +188,7 @@ export function ChapterStore() {
         {/* Standalone Chapters */}
         {chapters.length > 0 && (
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
+            <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-2">
               <FileText size={28} />
               Standalone Chapter Posts
             </h2>
@@ -201,7 +201,7 @@ export function ChapterStore() {
                   <div
                     key={chapter.id}
                     onClick={() => navigate(`/chapter/${chapter.id}`)}
-                    className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-[1.02] transition-transform"
+                    className="bg-gray-800 rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow cursor-pointer transform hover:scale-[1.02] transition-transform"
                   >
                     {chapter.cover_image_url ? (
                       <img
@@ -217,7 +217,7 @@ export function ChapterStore() {
 
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+                        <span className="text-sm font-medium text-gray-400">
                           Chapter {chapter.chapter_number}
                         </span>
 
@@ -227,32 +227,32 @@ export function ChapterStore() {
                             FREE
                           </span>
                         ) : purchased ? (
-                          <span className="text-xs bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 px-2 py-1 rounded-full">
+                          <span className="text-xs bg-green-900 text-green-200 px-2 py-1 rounded-full">
                             Owned
                           </span>
                         ) : null}
                       </div>
 
-                      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                      <h3 className="text-xl font-bold text-white mb-2">
                         {chapter.title}
                       </h3>
 
-                      <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-3">
+                      <p className="text-gray-400 text-sm mb-4 line-clamp-3">
                         {chapter.description}
                       </p>
 
                       <div className="flex items-center justify-between">
                         {chapter.is_free ? (
-                          <span className="text-2xl font-bold text-green-600 dark:text-green-400">
+                          <span className="text-2xl font-bold text-green-400">
                             FREE
                           </span>
                         ) : (
-                          <span className="text-2xl font-bold text-primary-600 dark:text-primary-400">
+                          <span className="text-2xl font-bold text-primary-600">
                             ₹{chapter.price}
                           </span>
                         )}
 
-                        <span className="text-sm text-gray-500 dark:text-gray-400">
+                        <span className="text-sm text-gray-400">
                           {chapter.content_type === 'pdf' ? 'PDF' : 'Text'} →
                         </span>
                       </div>

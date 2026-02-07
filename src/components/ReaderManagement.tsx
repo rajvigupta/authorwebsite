@@ -180,10 +180,10 @@ export function ReaderManagement() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white font-cinzel">
+          <h2 className="text-2xl font-bold text-white font-cinzel">
             Reader Management
           </h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1 font-lora">
+          <p className="text-sm text-gray-400 mt-1 font-lora">
             {filteredReaders.length} reader{filteredReaders.length !== 1 ? 's' : ''} found
           </p>
         </div>
@@ -208,7 +208,7 @@ export function ReaderManagement() {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           placeholder="Search by name or email..."
-          className="w-full pl-10 pr-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-lora"
+          className="w-full pl-10 pr-4 py-3 border border-gray-600 rounded-lg bg-gray-700 text-white font-lora"
         />
       </div>
 
@@ -216,30 +216,30 @@ export function ReaderManagement() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="gothic-card rounded-lg p-6">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400 font-lora">Total Readers</p>
-            <Users size={24} className="text-primary-600 dark:text-primary-400" />
+            <p className="text-sm text-gray-400 font-lora">Total Readers</p>
+            <Users size={24} className="text-primary-600" />
           </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white font-cinzel">
+          <p className="text-3xl font-bold text-white font-cinzel">
             {readers.length}
           </p>
         </div>
 
         <div className="gothic-card rounded-lg p-6">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400 font-lora">Active Buyers</p>
-            <BookOpen size={24} className="text-green-600 dark:text-green-400" />
+            <p className="text-sm text-gray-400 font-lora">Active Buyers</p>
+            <BookOpen size={24} className="text-green-400" />
           </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white font-cinzel">
+          <p className="text-3xl font-bold text-white font-cinzel">
             {readers.filter((r) => r.total_chapters_purchased > 0).length}
           </p>
         </div>
 
         <div className="gothic-card rounded-lg p-6">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-600 dark:text-gray-400 font-lora">Total Revenue</p>
+            <p className="text-sm text-gray-400 font-lora">Total Revenue</p>
             <span className="text-2xl">₹</span>
           </div>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white font-cinzel">
+          <p className="text-3xl font-bold text-white font-cinzel">
             ₹{readers.reduce((sum, r) => sum + r.total_spent, 0).toFixed(2)}
           </p>
         </div>
@@ -250,28 +250,28 @@ export function ReaderManagement() {
         {filteredReaders.length === 0 ? (
           <div className="text-center py-12">
             <Users size={48} className="mx-auto text-gray-400 mb-4" />
-            <p className="text-gray-600 dark:text-gray-400 font-lora">
+            <p className="text-gray-400 font-lora">
               {searchQuery ? 'No readers found matching your search' : 'No readers yet'}
             </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead className="bg-gray-50 dark:bg-gray-700 border-b border-gray-200 dark:border-gray-600">
+              <thead className="bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                 <tr>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 font-cinzel">
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel">
                     Reader
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 font-cinzel hidden md:table-cell">
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel hidden md:table-cell">
                     Email
                   </th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 font-cinzel">
+                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel">
                     Purchases
                   </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 font-cinzel hidden sm:table-cell">
+                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel hidden sm:table-cell">
                     Total Spent
                   </th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700 dark:text-gray-300 font-cinzel">
+                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel">
                     Actions
                   </th>
                 </tr>
@@ -281,22 +281,22 @@ export function ReaderManagement() {
                   <>
                     <tr
                       key={reader.id}
-                      className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                      className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-700 transition-colors"
                     >
                       <td className="py-3 px-4">
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-white font-lora">
+                          <p className="font-medium text-white font-lora">
                             {reader.full_name}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 font-lora md:hidden">
+                          <p className="text-xs text-gray-400 font-lora md:hidden">
                             {reader.email}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400 font-lora">
+                          <p className="text-xs text-gray-400 font-lora">
                             Joined {new Date(reader.created_at).toLocaleDateString('en-GB')}
                           </p>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-600 dark:text-gray-400 font-lora text-sm hidden md:table-cell">
+                      <td className="py-3 px-4 text-gray-400 font-lora text-sm hidden md:table-cell">
                         <div className="flex items-center gap-2">
                           <Mail size={16} className="text-gray-400" />
                           {reader.email}
@@ -307,13 +307,13 @@ export function ReaderManagement() {
                           {reader.total_chapters_purchased}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-right text-green-600 dark:text-green-400 font-bold font-cinzel hidden sm:table-cell">
+                      <td className="py-3 px-4 text-right text-green-400 font-bold font-cinzel hidden sm:table-cell">
                         ₹{reader.total_spent.toFixed(2)}
                       </td>
                       <td className="py-3 px-4 text-center">
                         <button
                           onClick={() => toggleExpandReader(reader.id)}
-                          className="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                          className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
                           title="View details"
                         >
                           <Eye size={18} />
@@ -323,16 +323,16 @@ export function ReaderManagement() {
 
                     {/* Expanded Row - Purchase Details */}
                     {expandedReaderId === reader.id && (
-                      <tr className="bg-gray-50 dark:bg-gray-700">
+                      <tr className="bg-gray-700">
                         <td colSpan={5} className="py-4 px-4">
                           <div className="space-y-3">
-                            <h4 className="font-semibold text-gray-900 dark:text-white font-cinzel flex items-center gap-2">
+                            <h4 className="font-semibold text-white font-cinzel flex items-center gap-2">
                               <BookOpen size={18} />
                               Purchase History ({reader.purchased_chapters.length})
                             </h4>
 
                             {reader.purchased_chapters.length === 0 ? (
-                              <p className="text-sm text-gray-600 dark:text-gray-400 italic font-lora">
+                              <p className="text-sm text-gray-400 italic font-lora">
                                 No purchases yet
                               </p>
                             ) : (
@@ -340,18 +340,18 @@ export function ReaderManagement() {
                                 {reader.purchased_chapters.map((purchase, index) => (
                                   <div
                                     key={index}
-                                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600"
+                                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600"
                                   >
                                     <div className="flex-1">
-                                      <p className="text-sm font-medium text-gray-900 dark:text-white font-lora">
+                                      <p className="text-sm font-medium text-white font-lora">
                                         Chapter {purchase.chapter_number}: {purchase.chapter_title}
                                       </p>
                                       {purchase.book_title && (
-                                        <p className="text-xs text-gray-500 dark:text-gray-400 font-lora">
+                                        <p className="text-xs text-gray-400 font-lora">
                                           From: {purchase.book_title}
                                         </p>
                                       )}
-                                      <p className="text-xs text-gray-500 dark:text-gray-400 font-lora">
+                                      <p className="text-xs text-gray-400 font-lora">
                                         {new Date(purchase.purchased_at).toLocaleDateString('en-GB')} at{' '}
                                         {new Date(purchase.purchased_at).toLocaleTimeString('en-GB', {
                                           hour: '2-digit',
@@ -360,7 +360,7 @@ export function ReaderManagement() {
                                       </p>
                                     </div>
                                     <div className="text-right">
-                                      <p className="text-sm font-bold text-green-600 dark:text-green-400 font-cinzel">
+                                      <p className="text-sm font-bold text-green-400 font-cinzel">
                                         ₹{purchase.amount_paid.toFixed(2)}
                                       </p>
                                     </div>

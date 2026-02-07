@@ -4,71 +4,86 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
+  // ✅ Force dark mode classes to ALWAYS apply
+  darkMode: 'class',
+  
   theme: {
     extend: {
       colors: {
-        // Gothic Mystery Palette
+        // Gold/Primary colors for accents
         primary: {
-          DEFAULT: '#d4af37', // Gold
-          light: '#e6c85c',
-          dark: '#b8941f',
+          DEFAULT: '#c9a63a',
+          50: '#fef7e6',
+          100: '#fcefc7',
+          200: '#f9df8f',
+          300: '#f4c84f',
+          400: '#e2c766',
+          500: '#d4af37',
+          600: '#c9a63a',
+          700: '#b8941f',
+          800: '#8b6f17',
+          900: '#5d4a0f',
         },
-        // Background layers
-        'gothic': {
-          darkest: '#0d1117',
-          dark: '#161b26',
-          mid: '#1a1f2e',
-          light: '#21262d',
+        'gold': '#c9a63a',
+        'gold-bright': '#e2c766',
+        'gold-soft': '#e6c85c',
+        
+        // GREEN only for accents (NOT backgrounds)
+        'green-fresh': '#7fb069',
+        'green-bright': '#90ee90',
+        
+        // DARK GRAY backgrounds (like your Image 2)
+        'bg-dark': {
+          DEFAULT: '#1a202c',  // Main dark background
+          lighter: '#2d3748',   // Cards, sections
+          darker: '#171923',    // Darkest areas
         },
-        // Text colors
-        'text': {
-          gold: '#d4af37',
-          light: '#c9d1d9',
-          muted: '#8b949e',
-          dim: '#6e7681',
+        
+        // Text colors for dark theme
+        'text-dark': {
+          primary: '#ffffff',
+          secondary: '#e2e8f0',
+          muted: '#a0aec0',
+          dim: '#718096',
         },
-        // Accent colors
-        'accent': {
-          maroon: '#6b2e2e',
-          'maroon-light': '#8b3e3e',
-          navy: '#1f3554',
-          olive: '#4a5a4a',
+        
+        // Legacy gothic colors (keep for backwards compatibility)
+        'gothic-darkest': '#171923',
+        'gothic-dark': '#1a202c',
+        'gothic-mid': '#2d3748',
+        'gothic-light': '#4a5568',
+        
+        'forest-darkest': '#171923',
+        'forest-dark': '#1a202c',
+        'forest-mid': '#2d3748',
+        'forest-light': '#4a5568',
+        
+        'text-light': '#ffffff',
+        'text-muted': '#e2e8f0',
+        'text-dim': '#a0aec0',
+        'text-gold': '#e2c766',
+        
+        'cream': '#faf8f3',
+        'cream-dark': '#e8e4da',
+        
+        'accent-maroon': {
+          DEFAULT: '#8b3e3e',
+          light: '#a85454',
+          dark: '#6b2e2e',
         },
       },
       backgroundImage: {
-        'gothic-gradient': 'linear-gradient(135deg, #0d1117 0%, #1a1f2e 50%, #0d1117 100%)',
-        'paper-texture': 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'300\' height=\'300\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'300\' height=\'300\' filter=\'url(%23noise)\' opacity=\'0.05\'/%3E%3C/svg%3E")',
-        'vignette': 'radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.4) 100%)',
+        'gothic-gradient': 'linear-gradient(135deg, #171923 0%, #1a202c 40%, #2d3748 100%)',
       },
       boxShadow: {
-        'gothic': '0 4px 20px rgba(0, 0, 0, 0.5)',
-        'gold': '0 4px 15px rgba(212, 175, 55, 0.25)',
-        'gold-glow': '0 0 20px rgba(212, 175, 55, 0.4)',
-        'inner-glow': 'inset 0 0 20px rgba(212, 175, 55, 0.1)',
+        'gothic': '0 8px 32px rgba(0, 0, 0, 0.3)',
+        'gold': '0 6px 25px rgba(212, 175, 55, 0.5)',
+        'gold-glow': '0 0 40px rgba(212, 175, 55, 0.2)',
       },
       fontFamily: {
         'cinzel': ['Cinzel', 'serif'],
-        'cormorant': ['Cormorant Garamond', 'serif'],
+        'cormorant': ['Cormoant Garamond', 'serif'],
         'lora': ['Lora', 'serif'],
-      },
-      animation: {
-        'float': 'float 6s ease-in-out infinite',
-        'glow': 'glow 2s ease-in-out infinite alternate',
-        'shimmer': 'shimmer 3s linear infinite',
-      },
-      keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0px)' },
-          '50%': { transform: 'translateY(-10px)' },
-        },
-        glow: {
-          '0%': { textShadow: '0 0 10px rgba(212, 175, 55, 0.3)' },
-          '100%': { textShadow: '0 0 20px rgba(212, 175, 55, 0.6)' },
-        },
-        shimmer: {
-          '0%': { backgroundPosition: '-1000px 0' },
-          '100%': { backgroundPosition: '1000px 0' },
-        },
       },
     },
   },

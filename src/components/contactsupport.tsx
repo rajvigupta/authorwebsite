@@ -24,12 +24,12 @@ export function ContactSupportContent() {
             
             <div className="space-y-2 md:space-y-3">
               <div className="flex items-center gap-2 md:gap-3">
-                <User size={20} className="md:w-6 md:h-6 text-green-fresh flex-shrink-0" />
+                <User size={20} className="md:w-6 md:h-6 text-gray-600 flex-shrink-0" />
                 <span className="font-lora text-cream text-sm md:text-base">Rajvi Gupta</span>
               </div>
               
               <div className="flex items-start gap-2 md:gap-3">
-                <Mail size={20} className="md:w-6 md:h-6 text-green-fresh flex-shrink-0 mt-0.5" />
+                <Mail size={20} className="md:w-6 md:h-6 text-gray-600 flex-shrink-0 mt-0.5" />
                 <a 
                   href="mailto:rajvigupta04@gmail.com" 
                   className="font-lora text-primary hover:text-gold-bright transition-colors underline text-sm md:text-base break-all"
@@ -59,12 +59,12 @@ export function ContactSupportContent() {
             </p>
             <div className="space-y-2 md:space-y-3">
               <div className="flex items-center gap-2 md:gap-3">
-                <User size={20} className="md:w-6 md:h-6 text-green-fresh flex-shrink-0" />
+                <User size={20} className="md:w-6 md:h-6 text-gray-600 flex-shrink-0" />
                 <span className="font-lora text-cream text-sm md:text-base">Alankrita</span>
               </div>
               
               <div className="flex items-start gap-2 md:gap-3">
-                <Mail size={20} className="md:w-6 md:h-6 text-green-fresh flex-shrink-0 mt-0.5" />
+                <Mail size={20} className="md:w-6 md:h-6 text-gray-600 flex-shrink-0 mt-0.5" />
                 <a 
                   href="mailto:author@memorycraver.com" 
                   className="font-lora text-text-gold underline text-sm md:text-base break-all"

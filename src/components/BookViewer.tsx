@@ -31,9 +31,10 @@ export function BookView() {
   const toast = useToast();
 
   useEffect(() => {
-    if (bookId) {
-      loadBookData();
-    }
+  if (bookId) {
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    loadBookData();
+  }
   }, [bookId]);
 
   const loadBookData = async () => {

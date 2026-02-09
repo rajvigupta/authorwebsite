@@ -38,12 +38,13 @@ export function StandaloneChapterView() {
   }, []);
 
   useEffect(() => {
-    if (chapterId) {
-      loadChapterData();
-    } else {
+     if (chapterId) {
+     window.scrollTo({ top: 0, behavior: 'instant' });
+    loadChapterData();
+   } else {
       navigate('/');
     }
-  }, [chapterId]);
+   } , [chapterId]);
 
   useScreenshotPrevention({
     userEmail: user?.email,

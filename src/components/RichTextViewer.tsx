@@ -398,7 +398,7 @@ const getFontSizeClass = () => {
                     draggable="false"
                     onContextMenu={(e) => e.preventDefault()}
                   />
-                  {block.alt && (
+                  {block.alt && block.alt.trim() && (
                     <figcaption className="text-center text-sm text-text-muted mt-2 select-none font-lora italic">
                       {block.alt}
                     </figcaption>

@@ -99,7 +99,7 @@ const autoResize = (el: HTMLTextAreaElement) => {
 
       updateBlock(blockId, {
         imageUrl: data.publicUrl,
-        alt: file.name,
+        alt: '',
       });
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -197,7 +197,7 @@ const autoResize = (el: HTMLTextAreaElement) => {
                     type="text"
                     value={block.alt || ''}
                     onChange={(e) => updateBlock(block.id, { alt: e.target.value })}
-                    placeholder="Image alt text..."
+                    placeholder="Image caption (optional)"
                     className="w-full px-3 py-2 border border-gray-600 rounded bg-gray-700 text-white text-sm"
                   />
                 </div>

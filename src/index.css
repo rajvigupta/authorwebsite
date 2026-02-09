@@ -185,8 +185,7 @@ h2, h3, h4, h5, h6 {
   animation: rotate-gentle 10s linear infinite;
 }
 
-
-/* Cards */
+/* Cards - NO HOVER EFFECTS */
 .gothic-card {
   background: linear-gradient(135deg, 
     rgba(42, 74, 56, 0.95) 0%, 
@@ -199,28 +198,13 @@ h2, h3, h4, h5, h6 {
     var(--green-fresh)
   ) 1;
   backdrop-filter: blur(10px);
-  transition: all 0.4s ease;
   box-shadow: 
     0 8px 32px rgba(0, 0, 0, 0.3),
     inset 0 1px 0 rgba(244, 208, 63, 0.1);
   position: relative;
   overflow: hidden;
+  
 }
-
-
-.gothic-card:hover {
-  border-image: linear-gradient(135deg, 
-    var(--gold-bright), 
-    var(--gold), 
-    var(--gold-bright)
-  ) 1;
-  box-shadow: 
-    0 12px 40px rgba(212, 175, 55, 0.3),
-    inset 0 1px 0 rgba(244, 208, 63, 0.2),
-    0 0 40px rgba(212, 175, 55, 0.2);
-  transform: translateY(-6px);
-}
-
 /* Buttons */
 .btn-gold {
   background: linear-gradient(135deg, 

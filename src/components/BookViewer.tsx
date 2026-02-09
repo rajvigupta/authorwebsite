@@ -368,23 +368,40 @@ export function BookView() {
   const handleCloseReader = () => {
     setReadingChapterId(null);
   };
-
-  const handlePrevChapter = () => {
+const handlePrevChapter = () => {
     if (currentChapterIndex > 0) {
       const prevIndex = currentChapterIndex - 1;
+      const prevChapter = chapters[prevIndex];
+      
+      // Check if previous chapter is purchased
+      if (!isChapterPurchased(prevChapter.id)) {
+        toast.error('🔒 Please purchase the previous chapter first');
+        handlePurchaseChapter(prevChapter);
+        return;
+      }
+      
       setCurrentChapterIndex(prevIndex);
-      setReadingChapterId(chapters[prevIndex].id);
+      setReadingChapterId(prevChapter.id);
     }
   };
 
   const handleNextChapter = () => {
     if (currentChapterIndex < chapters.length - 1) {
       const nextIndex = currentChapterIndex + 1;
+      const nextChapter = chapters[nextIndex];
+      
+      // Check if next chapter is purchased
+      if (!isChapterPurchased(nextChapter.id)) {
+        toast.error('🔒 Please purchase the next chapter first');
+        handlePurchaseChapter(nextChapter);
+        return;
+      }
+      
       setCurrentChapterIndex(nextIndex);
-      setReadingChapterId(chapters[nextIndex].id);
+      setReadingChapterId(nextChapter.id);
     }
   };
-
+  
   if (loading) {
     return (
       <div className="min-h-screen bg-gothic-darkest flex items-center justify-center">

@@ -85,16 +85,14 @@ export function EditNameModal({ isOpen, onClose, currentName }: EditNameModalPro
           <h2 className="text-3xl font-bold text-gold-bright mb-2 font-cinzel">
             Edit Your Name
           </h2>
-          <p className="text-cream-dark text-sm font-cormorant italic">
-            Update how your name appears on the platform
-          </p>
+          
         </div>
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-sm font-medium text-cream mb-2 font-lora">
-              Full Name
+              Name
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -111,9 +109,7 @@ export function EditNameModal({ isOpen, onClose, currentName }: EditNameModalPro
                 autoFocus
               />
             </div>
-            <p className="mt-1 text-xs text-cream-dark font-lora">
-              {newName.length}/100 characters
-            </p>
+            
           </div>
 
           {/* Current name display */}

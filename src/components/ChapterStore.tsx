@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BookOpen, Lock, Book, FileText } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, DEVELOPER_EMAIL } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthorProfileSection } from './AuthorProfileSection';
 import type { Chapter, Purchase, Book as BookType, Profile } from '../lib/supabase';
@@ -89,6 +89,7 @@ export function ChapterStore() {
 
   // ✅ FIXED: Simplified - just check purchases, don't try to look up chapter
   const isPurchased = (chapterId: string) => {
+    if (user?.email === DEVELOPER_EMAIL) return true; // Developer has free access
     return purchases.some((p) => p.chapter_id === chapterId);
   };
 
@@ -225,6 +226,10 @@ export function ChapterStore() {
                         {chapter.is_free ? (
                           <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-bold">
                             FREE
+                          </span>
+                        ) : user?.email === DEVELOPER_EMAIL ? (
+                          <span className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full font-bold">
+                            DEV ACCESS
                           </span>
                         ) : purchased ? (
                           <span className="text-xs bg-green-900 text-green-200 px-2 py-1 rounded-full">

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, ChevronLeft, ChevronRight, Palette } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, DEVELOPER_EMAIL } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { RichTextViewer } from './RichTextViewer';
 import { CommentVoteSection } from './CommentVoteSection';

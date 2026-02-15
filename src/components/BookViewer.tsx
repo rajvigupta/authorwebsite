@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, ShoppingCart, BookOpen } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, DEVELOPER_EMAIL } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { BookCommentSection } from './BookCommentSection';
 import { ChapterReader } from './ChapterReader';
@@ -112,14 +112,16 @@ export function BookView() {
   // ✅ FIXED: Can access if: author OR free OR purchased
   const canAccessChapter = (chapterId: string) => {
     if (profile?.role === 'author') return true;
+    if (user?.email === DEVELOPER_EMAIL) return true; // Developer has free access
     if (isChapterFree(chapterId)) return true;
     return isChapterPurchased(chapterId);
   };
 
 
-  const unpurchasedChapters = chapters.filter(ch => 
-    !isChapterFree(ch.id) && !isChapterPurchased(ch.id)
-  );
+  const unpurchasedChapters = chapters.filter(ch => {
+    if (user?.email === DEVELOPER_EMAIL) return false; // Developer doesn't see purchase buttons
+    return !isChapterFree(ch.id) && !isChapterPurchased(ch.id);
+  });
   const totalRemainingCost = unpurchasedChapters.reduce((sum, ch) => sum + ch.price, 0);
 
   const handlePurchaseChapter = async (chapter: Chapter) => {
@@ -357,7 +359,7 @@ export function BookView() {
   };
 
   const handleReadChapter = (chapter: Chapter, index: number) => {
-    if (!canAccessChapter(chapter.id) && profile?.role !== 'author') {
+    if (!canAccessChapter(chapter.id)) {
       handlePurchaseChapter(chapter);
       return;
     }
@@ -401,7 +403,6 @@ const handlePrevChapter = () => {
       setReadingChapterId(nextChapter.id);
     }
   };
-  
   if (loading) {
     return (
       <div className="min-h-screen bg-gothic-darkest flex items-center justify-center">
@@ -558,10 +559,18 @@ const handlePrevChapter = () => {
                             Chapter {chapter.chapter_number}
                           </span>
                           
-                          {/* ✅ FIXED: Show FREE badge first, then Owned, then price */}
+                          {/* Badge: FREE > Author > Developer > Owned > Price */}
                           {isFree ? (
                             <span className="text-xs bg-green-600 text-white px-3 py-1 rounded-full font-bold">
                               FREE
+                            </span>
+                          ) : profile?.role === 'author' ? (
+                            <span className="text-xs bg-blue-900/30 text-blue-400 px-2 py-1 rounded-full font-lora">
+                              Author
+                            </span>
+                          ) : user?.email === DEVELOPER_EMAIL ? (
+                            <span className="text-xs bg-purple-600 text-white px-3 py-1 rounded-full font-bold">
+                              DEV ACCESS
                             </span>
                           ) : purchased ? (
                             <span className="text-xs bg-green-900/30 text-green-400 px-2 py-1 rounded-full font-lora">
@@ -582,13 +591,21 @@ const handlePrevChapter = () => {
                         </p>
                       </div>
                        <div className="w-full sm:w-auto flex-shrink-0">
-              {purchased ? (
-                <button className="w-full sm:w-auto px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-cinzel text-sm">
-                  Read
-                </button>
-              ) : chapter.is_free ? (
+              {isFree ? (
                 <button className="w-full sm:w-auto px-4 py-2 bg-green-600/20 text-green-400 rounded-lg hover:bg-green-600/30 transition-colors font-cinzel text-sm">
                   Read Free
+                </button>
+              ) : profile?.role === 'author' ? (
+                <button className="w-full sm:w-auto px-4 py-2 bg-blue-600/20 text-blue-400 rounded-lg hover:bg-blue-600/30 transition-colors font-cinzel text-sm">
+                  Read
+                </button>
+              ) : user?.email === DEVELOPER_EMAIL ? (
+                <button className="w-full sm:w-auto px-4 py-2 bg-purple-600/20 text-purple-400 rounded-lg hover:bg-purple-600/30 transition-colors font-cinzel text-sm">
+                  Read
+                </button>
+              ) : purchased ? (
+                <button className="w-full sm:w-auto px-4 py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors font-cinzel text-sm">
+                  Read
                 </button>
               ) : (
                 <button className="w-full sm:w-auto px-4 py-2 bg-accent-maroon/20 text-accent-maroon-light rounded-lg hover:bg-accent-maroon/30 transition-colors font-cinzel text-sm flex items-center justify-center gap-2">

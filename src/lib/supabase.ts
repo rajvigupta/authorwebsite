@@ -6,6 +6,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 export const AUTHOR_EMAIL = 'rajvigupta04@gmail.com';
+export const DEVELOPER_EMAIL = 'poetessque13@gmail.com';
 
 export type Profile = {
   id: string;
@@ -45,8 +46,7 @@ export type Book = {
   updated_at: string;
 };
 
-// Fixed: ContentBlock is the individual block type
-// ✅ FIXED: Added 'page-image' type for PDF conversion
+//ContentBlock is the individual block type
 export type ContentBlock = {
   id: string;
   type: 'heading' | 'paragraph' | 'image' | 'page-image';

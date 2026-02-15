@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Lock, ShoppingCart, Palette } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, DEVELOPER_EMAIL } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { RichTextViewer } from './RichTextViewer';
 import { CommentVoteSection } from './CommentVoteSection';
@@ -109,6 +109,7 @@ export function StandaloneChapterView() {
 
   const isPurchased = () => {
     if (profile?.role === 'author') return true;
+    if (user?.email === DEVELOPER_EMAIL) return true; // Developer has free access
     if (chapter?.is_free) return true;
     return purchase !== null;
   };

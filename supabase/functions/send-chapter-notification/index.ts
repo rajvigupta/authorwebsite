@@ -174,7 +174,7 @@ Deno.serve(async (req: Request) => {
             body: JSON.stringify({
               sender: {
                 name: 'MemoryCraver',
-                email: 'notifications@memorycraver-app.com' // Can be ANY email - doesn't need to exist
+                email: 'rajvigupta04@gmail.com' 
               },
               to: [
                 {

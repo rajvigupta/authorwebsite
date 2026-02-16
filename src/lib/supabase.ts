@@ -15,6 +15,7 @@ export type Profile = {
   role: 'author' | 'reader';
   security_question?: string;
   security_answer_hash?: string;
+  email_notifications_enabled: boolean; 
   created_at: string;
   updated_at: string;
 };

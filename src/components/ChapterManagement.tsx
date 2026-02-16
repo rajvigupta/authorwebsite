@@ -10,7 +10,10 @@ export function ChapterManagement() {
   const [loading, setLoading] = useState(true);
   const [showEditor, setShowEditor] = useState(false);
   const [editingChapter, setEditingChapter] = useState<Chapter | null>(null);
+  const [sendingNotifications, setSendingNotifications] = useState<string | null>(null);
+const [notificationResults, setNotificationResults] = useState<Record<string, number>>({});
   const toast = useToast()
+
 
   useEffect(() => {
     loadChapters();
@@ -97,6 +100,54 @@ export function ChapterManagement() {
     setShowEditor(false);
     setEditingChapter(null);
   };
+
+  const handleSendNotifications = async (chapter: Chapter) => {
+  setSendingNotifications(chapter.id);
+  
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('Not authenticated');
+    }
+
+    const response = await fetch(
+      `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-chapter-notification`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json',
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          chapterId: chapter.id,
+          chapterTitle: chapter.title,
+          chapterNumber: chapter.chapter_number,
+          bookId: null, // standalone chapter
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to send notifications');
+    }
+
+    const result = await response.json();
+    setNotificationResults(prev => ({ ...prev, [chapter.id]: result.sent }));
+    toast.success(`✅ Sent ${result.sent} email notification${result.sent !== 1 ? 's' : ''}!`);
+    
+  } catch (error: any) {
+    console.error('Error sending notifications:', error);
+    toast.error(`Failed to send notifications: ${error.message}`);
+  } finally {
+    setSendingNotifications(null);
+  }
+};
+
+
+
 
   if (loading) {
     return <div className="text-center py-12">Loading chapters...</div>;
@@ -200,6 +251,40 @@ export function ChapterManagement() {
                     >
                       <Trash2 size={18} className="md:w-5 md:h-5" />
                     </button>
+                      {/* Email Notification Button - Only show if published */}
+{chapter.is_published && (
+  <button
+    onClick={() => handleSendNotifications(chapter)}
+    disabled={sendingNotifications === chapter.id}
+    className={`p-2 ${
+      sendingNotifications === chapter.id
+        ? 'text-gray-400 cursor-wait'
+        : 'text-green-400 hover:text-green-600 dark:hover:text-green-300'
+    }`}
+    title="Send email notifications"
+  >
+    {sendingNotifications === chapter.id ? (
+      <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    ) : (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    )}
+  </button>
+)}
+
+{/* Show result if notifications were sent */}
+{notificationResults[chapter.id] !== undefined && (
+  <span className="text-xs text-green-400 ml-2">
+    ✓ {notificationResults[chapter.id]} sent
+  </span>
+)}
+
+
+
                   </div>
                 </div>
               </div>

@@ -74,18 +74,19 @@ Deno.serve(async (req: Request) => {
     console.log('Creating profile for user:', userId);
 
     // Create profile using SERVICE ROLE (bypasses RLS)
-    const { data: profileData, error: profileError } = await supabaseAdmin
-      .from('profiles')
-      .insert([
-        {
-          id: userId,
-          email: email,
-          full_name: fullName,
-          role: role,
-          security_question: securityQuestion,
-          security_answer_hash: securityAnswerHash,
-        },
-      ])
+   const { data: profileData, error: profileError } = await supabaseAdmin
+  .from('profiles')
+  .insert([
+    {
+      id: userId,
+      email: email,
+      full_name: fullName,
+      role: role,
+      security_question: securityQuestion,
+      security_answer_hash: securityAnswerHash,
+      email_notifications_enabled: true, 
+    },
+  ])
       .select()
       .single();
 

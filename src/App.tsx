@@ -12,6 +12,7 @@ import { AuthModal } from './components/AuthModal';
 import { FloatingPages } from './components/FloatingPages';
 import { useLocation } from 'react-router-dom';
 import { useEffect } from 'react';
+import Settings from './pages/Settings';
 
 function AppContent() {
   
@@ -60,6 +61,7 @@ function AppContent() {
             element={isAuthor ? <AuthorDashboard /> : <Navigate to="/" replace />} 
           />
           <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/settings" element={<Settings />} />
         </Routes>
       </main>
 

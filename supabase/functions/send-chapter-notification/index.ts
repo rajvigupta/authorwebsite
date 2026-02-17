@@ -182,7 +182,7 @@ Deno.serve(async (req: Request) => {
                   name: recipient.full_name
                 }
               ],
-              subject: `📚 New Chapter Published: ${chapter.title}`,
+              subject: `New Chapter Published: ${chapter.title}`,
               htmlContent: emailHtml,
             }),
           });
@@ -311,11 +311,9 @@ function createEmailTemplate(props: EmailTemplateProps): string {
           <tr>
             <td style="background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%); padding: 30px 40px; text-align: center;">
               <h1 style="margin: 0; color: #0a0a0a; font-size: 28px; font-weight: 700; text-shadow: 1px 1px 2px rgba(255,255,255,0.3);">
-                📚 MemoryCraver
+                 MemoryCraver
               </h1>
-              <p style="margin: 8px 0 0 0; color: #1a1a1a; font-size: 14px; font-weight: 500;">
-                A New Chapter Awaits
-              </p>
+           
             </td>
           </tr>
           

@@ -1,10 +1,4 @@
-// ============================================================================
-// SUPABASE EDGE FUNCTION: send-chapter-notification (BREVO VERSION)
-// ============================================================================
-// Path: supabase/functions/send-chapter-notification/index.ts
-// 100% FREE - NO DOMAIN NEEDED - WORKS WITH BREVO FREE TIER
-// ============================================================================
-
+// <reference lib="deno.ns" />
 // @deno-types="npm:@supabase/supabase-js@2"
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
@@ -31,9 +25,6 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    // ═══════════════════════════════════════════════════════════
-    // STEP 1: Environment Variables & Setup
-    // ═══════════════════════════════════════════════════════════
     
     const supabaseUrl = Deno.env.get('SUPABASE_URL');
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
@@ -55,10 +46,6 @@ Deno.serve(async (req: Request) => {
         persistSession: false
       }
     });
-
-    // ═══════════════════════════════════════════════════════════
-    // STEP 2: Parse Request & Validate
-    // ═══════════════════════════════════════════════════════════
     
     const payload: NotificationPayload = await req.json();
     const { chapterId, chapterTitle, chapterNumber, bookId } = payload;
@@ -68,10 +55,6 @@ Deno.serve(async (req: Request) => {
     if (!chapterId || !chapterTitle) {
       throw new Error('Missing required fields: chapterId, chapterTitle');
     }
-
-    // ═══════════════════════════════════════════════════════════
-    // STEP 3: Get Chapter Details
-    // ═══════════════════════════════════════════════════════════
     
     const { data: chapter, error: chapterError } = await supabase
       .from('chapters')
@@ -95,10 +78,6 @@ Deno.serve(async (req: Request) => {
     if (chapterError || !chapter) {
       throw new Error(`Chapter not found: ${chapterError?.message}`);
     }
-
-    // ═══════════════════════════════════════════════════════════
-    // STEP 4: Get Recipients (Users with notifications enabled)
-    // ═══════════════════════════════════════════════════════════
     
     const { data: recipients, error: recipientsError } = await supabase
       .rpc('get_notification_recipients', { chapter_uuid: chapterId });
@@ -124,24 +103,18 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log(`📨 Sending to ${recipients.length} recipients`);
-
-    // ═══════════════════════════════════════════════════════════
-    // STEP 5: Prepare Email Content
-    // ═══════════════════════════════════════════════════════════
     
+     const bookUrl = bookId ? `${siteUrl}/book` :  `${siteUrl}/chapter/${chapterId}`;
     const bookTitle = chapter.books?.title || 'Standalone Chapter';
     const chapterUrl = bookId 
       ? `${siteUrl}/book/${bookId}/chapter/${chapter.chapter_number}`
       : `${siteUrl}/chapter/${chapterId}`;
-    
+
     const priceInfo = chapter.is_free 
       ? '✨ <strong>FREE to read!</strong>' 
       : `💰 Price: ₹${chapter.price}`;
 
-    // ═══════════════════════════════════════════════════════════
-    // STEP 6: Send Emails via Brevo API
-    // ═══════════════════════════════════════════════════════════
-    
+ 
     let successCount = 0;
     let failureCount = 0;
 
@@ -161,7 +134,8 @@ Deno.serve(async (req: Request) => {
             description: chapter.description || 'No description available',
             chapterUrl,
             priceInfo,
-            unsubscribeUrl: `${siteUrl}/settings?unsubscribe=true`
+            unsubscribeUrl: `${siteUrl}/settings?unsubscribe=true`,
+            bookUrl
           });
 
           // Brevo API call
@@ -182,7 +156,7 @@ Deno.serve(async (req: Request) => {
                   name: recipient.full_name
                 }
               ],
-              subject: `New Chapter Published: ${chapter.title}`,
+              subject: `New Chapter Published: ${chapter.title} in ${bookTitle}`,
               htmlContent: emailHtml,
             }),
           });
@@ -229,9 +203,6 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // STEP 7: Return Results
-    // ═══════════════════════════════════════════════════════════
     
     console.log(`✅ Sent: ${successCount}, ❌ Failed: ${failureCount}`);
 
@@ -251,7 +222,7 @@ Deno.serve(async (req: Request) => {
 
   } catch (error) {
     const err = error as Error;
-    console.error('💥 Error:', err);
+    console.error('Error:', err);
     
     return new Response(
       JSON.stringify({ 
@@ -266,9 +237,6 @@ Deno.serve(async (req: Request) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════
-// EMAIL TEMPLATE FUNCTION
-// ═══════════════════════════════════════════════════════════
 
 interface EmailTemplateProps {
   fullName: string;
@@ -279,6 +247,7 @@ interface EmailTemplateProps {
   chapterUrl: string;
   priceInfo: string;
   unsubscribeUrl: string;
+  bookUrl : string ;
 }
 
 function createEmailTemplate(props: EmailTemplateProps): string {
@@ -291,6 +260,7 @@ function createEmailTemplate(props: EmailTemplateProps): string {
     chapterUrl,
     priceInfo,
     unsubscribeUrl,
+    bookUrl
   } = props;
 
   return `
@@ -311,9 +281,8 @@ function createEmailTemplate(props: EmailTemplateProps): string {
           <tr>
             <td style="background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%); padding: 30px 40px; text-align: center;">
               <h1 style="margin: 0; color: #0a0a0a; font-size: 28px; font-weight: 700; text-shadow: 1px 1px 2px rgba(255,255,255,0.3);">
-                 MemoryCraver
+                Memorycraver
               </h1>
-           
             </td>
           </tr>
           
@@ -328,7 +297,7 @@ function createEmailTemplate(props: EmailTemplateProps): string {
               
               <!-- Main Message -->
               <p style="margin: 0 0 25px 0; font-size: 16px; line-height: 1.6; color: #e8e8e8;">
-                Great news! A new chapter has just been published:
+                A new chapter has just been published:
               </p>
               
               <!-- Chapter Card -->
@@ -351,13 +320,17 @@ function createEmailTemplate(props: EmailTemplateProps): string {
               <table role="presentation" style="margin: 0 0 30px 0;">
                 <tr>
                   <td style="text-align: center;">
-                    <a href="${chapterUrl}" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%); color: #0a0a0a; text-decoration: none; padding: 15px 40px; border-radius: 6px; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);">
+                    <a href="${bookUrl}" style="display: inline-block; background: linear-gradient(135deg, #d4af37 0%, #c9a961 100%); color: #0a0a0a; text-decoration: none; padding: 15px 40px; border-radius: 6px; font-weight: 700; font-size: 16px; text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);">
                       Read Now →
                     </a>
                   </td>
                 </tr>
               </table>
-            
+              
+              
+            </td>
+          </tr>
+          
           <!-- Footer -->
           <tr>
             <td style="background: #1a1a1a; padding: 25px 40px; border-top: 1px solid #333;">

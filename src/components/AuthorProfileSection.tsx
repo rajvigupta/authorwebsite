@@ -18,7 +18,6 @@ export function AuthorProfileSection({ authorUser, canEdit }: AuthorProfileSecti
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // ✅ NEW: Add full_name to formData
   const [formData, setFormData] = useState({
     full_name: '',
     bio: '',
@@ -44,7 +43,7 @@ export function AuthorProfileSection({ authorUser, canEdit }: AuthorProfileSecti
       if (data) {
         setAuthorProfile(data);
         setFormData({
-          full_name: authorUser.full_name, // ✅ Load current name
+          full_name: authorUser.full_name, 
           bio: data.bio || '',
           custom_links: data.custom_links || [],
         });

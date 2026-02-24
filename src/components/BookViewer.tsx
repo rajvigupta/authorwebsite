@@ -376,11 +376,11 @@ const handlePrevChapter = () => {
       const prevChapter = chapters[prevIndex];
       
       // Check if previous chapter is purchased
-      if (!isChapterPurchased(prevChapter.id)) {
-        toast.error('🔒 Please purchase the previous chapter first');
-        handlePurchaseChapter(prevChapter);
-        return;
-      }
+      if (!canAccessChapter(prevChapter.id)) {
+      toast.error('🔒 Please purchase the previous chapter first');
+      handlePurchaseChapter(prevChapter);
+      return;
+    }
       
       setCurrentChapterIndex(prevIndex);
       setReadingChapterId(prevChapter.id);
@@ -393,11 +393,11 @@ const handlePrevChapter = () => {
       const nextChapter = chapters[nextIndex];
       
       // Check if next chapter is purchased
-      if (!isChapterPurchased(nextChapter.id)) {
-        toast.error('🔒 Please purchase the next chapter first');
-        handlePurchaseChapter(nextChapter);
-        return;
-      }
+       if (!canAccessChapter(nextChapter.id)) {
+      toast.error('🔒 Please purchase the next chapter first');
+      handlePurchaseChapter(nextChapter);
+      return;
+    }
       
       setCurrentChapterIndex(nextIndex);
       setReadingChapterId(nextChapter.id);

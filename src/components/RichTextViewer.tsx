@@ -182,12 +182,12 @@ const getFontSizeClass = () => {
   }
 };
   // Line height classes - FIXED: More distinction
-  const getLineHeightClass = () => {
-    switch(lineHeight) {
-      case 'normal': return 'leading-relaxed'; // 1.625
-      case 'spacious': return 'leading-loose'; // 2.0
-    }
-  };
+const getLineHeightClass = () => {
+  switch(lineHeight) {
+    case 'normal': return 'line-height-normal'; // 1.5
+    case 'spacious': return 'line-height-spacious'; // 2.5
+  }
+};
 
   const watermarkStyle = getWatermarkStyle();
 

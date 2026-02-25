@@ -7,6 +7,7 @@ import { BookCommentSection } from './BookCommentSection';
 import { ChapterReader } from './ChapterReader';
 import type { Book as BookType, Chapter, Purchase } from '../lib/supabase';
 import { useToast } from './Toast';
+import { ShareButton } from './sharebutton';
 
 declare global {
   interface Window {
@@ -482,17 +483,28 @@ const handlePrevChapter = () => {
               </div>
             )}
 
-            <div className="flex items-center gap-6 text-text-muted mb-6">
-              <div className="flex items-center gap-2">
-                <BookOpen size={20} className="text-primary" />
-                <span className="font-lora">{chapters.length} chapters</span>
-              </div>
-              {user && unpurchasedChapters.length > 0 && (
-                <div className="font-lora text-sm">
-                  {chapters.length - unpurchasedChapters.length} owned
-                </div>
-              )}
-            </div>
+     <div className="flex items-center gap-6 text-text-muted mb-6">
+  <div className="flex items-center gap-2">
+    <BookOpen size={20} className="text-primary" />
+    <span className="font-lora">{chapters.length} chapters</span>
+  </div>
+  {user && unpurchasedChapters.length > 0 && (
+    <div className="font-lora text-sm">
+      {chapters.length - unpurchasedChapters.length} owned
+    </div>
+  )}
+
+  {/* ✅ ADD SHARE BUTTON HERE */}
+ <ShareButton 
+  bookTitle={book.title}
+  bookId={book.id}
+  coverImageUrl={book.cover_image_url}  // ✅ ADD THIS
+  description={book.description}
+/>
+</div>
+
+            
+          
 
             {/* Buy All Banner */}
             {unpurchasedChapters.length > 0 && user && profile?.role !== 'author' && (

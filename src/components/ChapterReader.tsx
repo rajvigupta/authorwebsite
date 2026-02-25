@@ -250,36 +250,7 @@ export function ChapterReader({
           </p>
         </div>
 
-        {/* Chapter Content */}
-<div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
-  {chapter.rich_content && Array.isArray(chapter.rich_content) ? (
-    // Check if it's image-based pages
-    chapter.rich_content.length > 0 && chapter.rich_content[0]?.type === 'page-image' ? (
-      // ✅ Show image viewer for converted PDFs
-      <SecureImageViewer
-        pages={chapter.rich_content as any}
-        userEmail={user?.email || 'Unknown User'}
-        chapterTitle={chapter.title}
-      />
-    ) : (
-
-      // Show rich text viewer for normal text content
-      <RichTextViewer 
-        content={chapter.rich_content as any}
-        userEmail={user?.email}
-        theme={theme}
-      />
-    )
-  ) : (
-    <div className="text-center py-12 text-text-muted font-lora">
-      No content available
-    </div>
-  )}
-</div>
-
-       
-
-        {/* Navigation */}
+         {/* Navigation */}
         {(hasPrevChapter || hasNextChapter) && (
           <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-8 md:mb-12">
             <button
@@ -303,6 +274,37 @@ export function ChapterReader({
             </button>
           </div>
         )}
+
+        {/* Chapter Content */}
+<div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
+  {chapter.rich_content && Array.isArray(chapter.rich_content) ? (
+   
+    chapter.rich_content.length > 0 && chapter.rich_content[0]?.type === 'page-image' ? (
+    
+      <SecureImageViewer
+        pages={chapter.rich_content as any}
+        userEmail={user?.email || 'Unknown User'}
+        chapterTitle={chapter.title}
+      />
+    ) : (
+
+      // Show rich text viewer for normal text content
+      <RichTextViewer 
+        content={chapter.rich_content as any}
+        userEmail={user?.email}
+        theme={theme}
+      />
+    )
+  ) : (
+    <div className="text-center py-12 text-text-muted font-lora">
+      No content available
+    </div>
+  )}
+</div>
+
+       
+
+       
 
         <div className="ornamental-divider my-8 md:my-12"></div>
 

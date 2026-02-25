@@ -157,7 +157,7 @@ export function ShareButton({ bookTitle, bookId, coverImageUrl, description }: S
                 Share
               </h2>
               <p className="text-sm text-text-muted font-lora">
-                Share an update on your socials with link so that your fans can discover this story.
+                Share this book on your socials so more people can discover it!
               </p>
             </div>
 

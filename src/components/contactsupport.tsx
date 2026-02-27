@@ -18,8 +18,7 @@ export function ContactSupportContent() {
           <div className="flex-1 w-full">
             <h3 className="text-xl md:text-2xl font-cinzel text-primary mb-2">Contact Developer</h3>
             <p className="text-cream-dark font-lora mb-3 md:mb-4 text-sm md:text-base break-words">
-              For technical issues, bugs, feature requests, or platform problems
-              an author who wants a website of your own 
+              For technical issues, bugs, feature requests, or if you want a platform of your own!
             </p>
             
             <div className="space-y-2 md:space-y-3">

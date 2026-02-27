@@ -92,7 +92,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   };
 
   const inputClass =
-    'w-full pl-10 pr-4 py-3 border-2 border-green-fresh/30 rounded-lg ' +
+    'w-full pl-10 pr-4 py-2.5 sm:py-3 text-sm sm:text-base border-2 border-green-fresh/30 rounded-lg ' +
     'focus:ring-2 focus:ring-gold focus:border-gold ' +
     'bg-white text-gray-900 placeholder-cream-dark/70 ' +
     'transition-all font-lora';
@@ -103,77 +103,80 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
     <>
       {!showForgotPassword && (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-forest-mid to-forest-dark rounded-2xl shadow-2xl max-w-md w-full p-8 relative border-2 border-gold/30 max-h-[90vh] overflow-y-auto">
+          <div className="bg-gradient-to-br from-forest-mid to-forest-dark rounded-2xl shadow-2xl max-w-md w-full p-4 sm:p-8 relative border-2 border-gold/30 max-h-[95vh] overflow-y-auto">
 
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-cream hover:text-gold"
+              className="absolute top-3 right-3 sm:top-4 sm:right-4 text-cream hover:text-gold z-10"
             >
-              <X size={24} />
+              <X size={20} className="sm:w-6 sm:h-6" />
             </button>
 
-            <div className="text-center mb-8">
-              <div className="inline-block p-3 bg-gold/10 rounded-full mb-4 border border-gold/30">
-                <User size={32} className="text-gold" />
+            <div className="text-center mb-4 sm:mb-8">
+              <div className="inline-block p-2 sm:p-3 bg-gold/10 rounded-full mb-3 sm:mb-4 border border-gold/30">
+                <User size={24} className="sm:w-8 sm:h-8 text-gold" />
               </div>
-              <h2 className="text-3xl font-bold text-gold-bright font-cinzel">
+              <h2 className="text-2xl sm:text-3xl font-bold text-gold-bright font-cinzel">
                 {mode === 'signin' ? 'Welcome Back' : 'Join Us'}
               </h2>
-              <p className="text-cream-dark text-sm font-cormorant italic mt-1">
+              <p className="text-cream-dark text-xs sm:text-sm font-cormorant italic mt-1">
                 {mode === 'signin'
                   ? 'Sign in to access your stories'
                   : 'Begin your journey into captivating tales'}
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
 
               {mode === 'signup' && (
                 <div>
-                  <label className="block text-sm text-cream mb-2">Name</label>
+                  <label className="block text-xs sm:text-sm text-cream mb-1.5 sm:mb-2 font-lora">Name</label>
                   <div className="relative">
-                    <User size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
+                    <User size={16} className={`sm:w-[18px] sm:h-[18px] absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
                     <input
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       className={inputClass}
                       placeholder="Enter your name"
+                      required
                     />
                   </div>
                 </div>
               )}
 
               <div>
-                <label className="block text-sm text-cream mb-2">Email Address</label>
+                <label className="block text-xs sm:text-sm text-cream mb-1.5 sm:mb-2 font-lora">Email Address</label>
                 <div className="relative">
-                  <Mail size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
+                  <Mail size={16} className={`sm:w-[18px] sm:h-[18px] absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={inputClass}
                     placeholder="you@example.com"
+                    required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm text-cream mb-2">Password</label>
+                <label className="block text-xs sm:text-sm text-cream mb-1.5 sm:mb-2 font-lora">Password</label>
                 <div className="relative">
-                  <Lock size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
+                  <Lock size={16} className={`sm:w-[18px] sm:h-[18px] absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
                   <input
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className={`${inputClass} pr-12`}
                     placeholder="Enter password"
+                    required
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-forest-dark/70 hover:text-gold"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    {showPassword ? <EyeOff size={16} className="sm:w-[18px] sm:h-[18px]" /> : <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />}
                   </button>
                 </div>
               </div>
@@ -181,13 +184,14 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               {mode === 'signup' && (
                 <>
                   <div>
-                    <label className="block text-sm text-cream mb-2">Security Question</label>
+                    <label className="block text-xs sm:text-sm text-cream mb-1.5 sm:mb-2 font-lora">Security Question</label>
                     <div className="relative">
-                      <HelpCircle size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
+                      <HelpCircle size={16} className={`sm:w-[18px] sm:h-[18px] absolute left-3 top-1/2 -translate-y-1/2 ${iconClass}`} />
                       <select
                         value={securityQuestion}
                         onChange={(e) => setSecurityQuestion(e.target.value)}
                         className={`${inputClass} appearance-none`}
+                        required
                       >
                         {SECURITY_QUESTIONS.map(q => (
                           <option key={q}>{q}</option>
@@ -197,19 +201,20 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
                   </div>
 
                   <div>
-                    <label className="block text-sm text-cream mb-2">Your Answer</label>
+                    <label className="block text-xs sm:text-sm text-cream mb-1.5 sm:mb-2 font-lora">Your Answer</label>
                     <input
                       value={securityAnswer}
                       onChange={(e) => setSecurityAnswer(e.target.value)}
-                      className="w-full px-4 py-3 border-2 border-green-fresh/30 rounded-lg bg-white text-gray-900 placeholder-cream-dark/70"
+                      className="w-full px-4 py-2.5 sm:py-3 text-sm sm:text-base border-2 border-green-fresh/30 rounded-lg bg-white text-gray-900 placeholder-cream-dark/70 font-lora"
                       placeholder="Enter your answer"
+                      required
                     />
                   </div>
                 </>
               )}
 
               {error && (
-                <div className="bg-red-900/30 border border-red-500/50 text-red-200 text-sm p-3 rounded">
+                <div className="bg-red-900/30 border border-red-500/50 text-red-200 text-xs sm:text-sm p-2.5 sm:p-3 rounded">
                   {error}
                 </div>
               )}
@@ -217,17 +222,17 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full btn-gold py-3 rounded-lg font-cinzel uppercase tracking-wider hover:brightness-110"
+                className="w-full btn-gold py-2.5 sm:py-3 rounded-lg font-cinzel uppercase tracking-wider hover:brightness-110 text-sm sm:text-base"
               >
                 {loading ? 'Please wait…' : mode === 'signin' ? 'Sign In' : 'Create Account'}
               </button>
             </form>
 
             {mode === 'signin' && (
-              <div className="text-center mt-4">
+              <div className="text-center mt-3 sm:mt-4">
                 <button
                   onClick={() => setShowForgotPassword(true)}
-                  className="text-gold hover:text-gold-bright text-sm"
+                  className="text-gold hover:text-gold-bright text-xs sm:text-sm font-lora"
                 >
                   Forgot password?
                 </button>
@@ -235,19 +240,19 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             )}
 
             {/* OR divider */}
-            <div className="relative my-6">
+            <div className="relative my-4 sm:my-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-green-fresh/40" />
               </div>
               <div className="relative flex justify-center">
-                <span className="px-3 bg-forest-dark text-cream-dark text-xs">or</span>
+                <span className="px-3 bg-forest-dark text-cream-dark text-xs font-lora">or</span>
               </div>
             </div>
 
             <div className="text-center">
               <button
                 onClick={handleModeSwitch}
-                className="text-gold hover:text-gold-bright text-sm"
+                className="text-gold hover:text-gold-bright text-xs sm:text-sm font-lora"
               >
                 {mode === 'signin'
                   ? "Don't have an account? Sign up"

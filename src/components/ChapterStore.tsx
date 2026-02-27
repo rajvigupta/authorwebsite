@@ -122,7 +122,7 @@ export function ChapterStore() {
             />
           </h1>
           <p className="text-lg font-cormorant italic text-text-muted">
-            Dive into captivating tales (or something else)
+            Dive into captivating tales!
           </p>
         </div>
 

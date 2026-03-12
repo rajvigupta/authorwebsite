@@ -34,12 +34,14 @@ export function SalesDashboard() {
   const [loading, setLoading] = useState(true);
   const [timeFilter, setTimeFilter] = useState<'all' | 'month' | 'week'>('all');
   const { profile } = useAuth();
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    if (profile?.role === 'author') {
-      fetchSalesData();
-    }
-  }, [profile, timeFilter]);
+useEffect(() => {
+  if (profile?.role === 'author') {
+    setCurrentPage(1);
+    fetchSalesData();
+  }
+}, [profile, timeFilter]);
 
   const fetchSalesData = async () => {
     setLoading(true);
@@ -128,6 +130,29 @@ export function SalesDashboard() {
 
     return data.filter((p) => new Date(p.purchased_at) >= cutoffDate);
   };
+
+  // ✅ ADD PAGINATION LOGIC
+const ITEMS_PER_PAGE = 10;
+const totalPages = Math.ceil(purchases.length / ITEMS_PER_PAGE);
+const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+const endIndex = startIndex + ITEMS_PER_PAGE;
+const currentTransactions = purchases.slice(startIndex, endIndex);
+
+const handleNextPage = () => {
+  if (currentPage < totalPages) {
+    setCurrentPage(currentPage + 1);
+  }
+};
+
+const handlePrevPage = () => {
+  if (currentPage > 1) {
+    setCurrentPage(currentPage - 1);
+  }
+};
+
+const handlePageClick = (page: number) => {
+  setCurrentPage(page);
+};
 
   const totalRevenue = purchases.reduce((sum, p) => sum + p.amount_paid, 0);
   const uniqueBuyers = new Set(purchases.map((p) => p.user_id)).size;
@@ -358,7 +383,7 @@ export function SalesDashboard() {
           </div>
         ) : (
           <div className="space-y-3">
-            {purchases.slice(0, 10).map((purchase) => (
+            {currentTransactions.map((purchase) => (
               <div
                 key={purchase.id}
                 className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 p-3 md:p-4 bg-gray-700 rounded-lg hover:bg-gray-600 transition-colors"
@@ -398,13 +423,49 @@ export function SalesDashboard() {
           </div>
         )}
 
-        {purchases.length > 10 && (
-          <div className="text-center mt-4">
-            <p className="text-xs md:text-sm text-gray-400 font-lora">
-              Showing 10 of {purchases.length} transactions
-            </p>
-          </div>
-        )}
+        {purchases.length > ITEMS_PER_PAGE && (
+  <div className="mt-6 border-t border-gray-700 pt-4">
+ 
+    <div className="text-center mb-4">
+      <p className="text-xs md:text-sm text-gray-400 font-lora">
+        Showing {startIndex + 1} - {Math.min(endIndex, purchases.length)} of {purchases.length} transactions
+      </p>
+    </div>
+
+    <div className="flex items-center justify-center gap-2 flex-wrap">
+      <button
+        onClick={handlePrevPage}
+        disabled={currentPage === 1}
+        className="px-3 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-lora text-sm"
+      >
+        Previous
+      </button>
+
+      <div className="flex items-center gap-1">
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <button
+            key={page}
+            onClick={() => handlePageClick(page)}
+            className={`w-8 h-8 md:w-10 md:h-10 rounded-lg font-cinzel text-sm md:text-base transition-colors ${
+              page === currentPage
+                ? 'bg-primary text-gothic-darkest font-bold'
+                : 'bg-gray-700 text-white hover:bg-gray-600'
+            }`}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
+      <button
+        onClick={handleNextPage}
+        disabled={currentPage === totalPages}
+        className="px-3 py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors font-lora text-sm"
+      >
+        Next
+      </button>
+    </div>
+  </div>
+)}
       </div>
     </div>
   );

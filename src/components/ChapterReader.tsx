@@ -116,6 +116,34 @@ export function ChapterReader({
 
   const currentTheme = getThemeDetails(theme);
 
+  // ✅ ADD THIS - Reusable Navigation Component
+  const NavigationButtons = () => (
+    (hasPrevChapter || hasNextChapter) ? (
+      <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-6 md:mb-8">
+        <button
+          onClick={onPrevChapter}
+          disabled={!hasPrevChapter}
+          className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel text-sm md:text-base"
+        >
+          <ChevronLeft size={18} className="md:w-5 md:h-5" />
+          <span className="hidden sm:inline">Previous Chapter</span>
+          <span className="sm:hidden">Previous</span>
+        </button>
+
+        <button
+          onClick={onNextChapter}
+          disabled={!hasNextChapter}
+          className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel text-sm md:text-base"
+        >
+          <span className="hidden sm:inline">Next Chapter</span>
+          <span className="sm:hidden">Next</span>
+          <ChevronRight size={18} className="md:w-5 md:h-5" />
+        </button>
+      </div>
+    ) : null
+  );
+
+
   return (
     <div className={`fixed inset-0 bg-gothic-darkest z-50 overflow-y-auto ${getThemeClass()}`}>
       
@@ -250,30 +278,8 @@ export function ChapterReader({
           </p>
         </div>
 
-         {/* Navigation */}
-        {(hasPrevChapter || hasNextChapter) && (
-          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-8 md:mb-12">
-            <button
-              onClick={onPrevChapter}
-              disabled={!hasPrevChapter}
-              className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel text-sm md:text-base"
-            >
-              <ChevronLeft size={18} className="md:w-5 md:h-5" />
-              <span className="hidden sm:inline">Previous Chapter</span>
-              <span className="sm:hidden">Previous</span>
-            </button>
-
-            <button
-              onClick={onNextChapter}
-              disabled={!hasNextChapter}
-              className="flex items-center justify-center gap-2 px-4 md:px-6 py-3 bg-gothic-mid text-primary rounded-lg hover:bg-primary/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed font-cinzel text-sm md:text-base"
-            >
-              <span className="hidden sm:inline">Next Chapter</span>
-              <span className="sm:hidden">Next</span>
-              <ChevronRight size={18} className="md:w-5 md:h-5" />
-            </button>
-          </div>
-        )}
+        {/* ✅ ADD TOP NAVIGATION HERE */}
+        <NavigationButtons />
 
         {/* Chapter Content */}
 <div className="bg-gothic-mid rounded-lg border border-accent-maroon/20 p-4 md:p-8 mb-6 md:mb-8 shadow-gothic">
@@ -302,7 +308,8 @@ export function ChapterReader({
   )}
 </div>
 
-       
+      {/* Bottom Navigation */}
+        <NavigationButtons /> 
 
        
 

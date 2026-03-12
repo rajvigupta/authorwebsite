@@ -135,13 +135,7 @@ export function SecureImageViewer({
         ))}
       </div>
 
-      {/* Scroll indicator - Hide on mobile, show on desktop */}
-      {pages.length > 1 && (
-        <div className="hidden md:flex fixed bottom-8 right-8 bg-accent-maroon/80 text-white px-4 py-2 rounded-full shadow-lg items-center gap-2 z-20 animate-bounce">
-          <ChevronDown size={20} />
-          <span className="text-sm font-lora">Scroll for more pages</span>
-        </div>
-      )}
+      
 
       {/* Protection notice */}
       <div className="mt-6 p-4 bg-accent-maroon/10 border border-accent-maroon/30 rounded-lg">

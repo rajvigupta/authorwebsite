@@ -256,22 +256,16 @@ export function ReaderManagement() {
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px] sm:min-w-0">
               <thead className="bg-gray-700 border-b border-gray-200 dark:border-gray-600">
                 <tr>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel">
+                  <th className="text-left py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-300 font-cinzel">
                     Reader
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel hidden md:table-cell">
-                    Email
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel">
+                  <th className="text-center py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-300 font-cinzel">
                     Purchases
                   </th>
-                  <th className="text-right py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel hidden sm:table-cell">
-                    Total Spent
-                  </th>
-                  <th className="text-center py-3 px-4 text-sm font-semibold text-gray-300 font-cinzel">
+                  <th className="text-center py-2 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-semibold text-gray-300 font-cinzel">
                     Actions
                   </th>
                 </tr>
@@ -283,40 +277,36 @@ export function ReaderManagement() {
                       key={reader.id}
                       className="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-700 transition-colors"
                     >
-                      <td className="py-3 px-4">
-                        <div>
-                          <p className="font-medium text-white font-lora">
+                      <td className="py-2 sm:py-3 px-2 sm:px-4">
+                        <div className="min-w-0">
+                          <p className="font-medium text-white font-lora text-sm sm:text-base truncate">
                             {reader.full_name}
                           </p>
-                          <p className="text-xs text-gray-400 font-lora md:hidden">
+                          <p className="text-xs text-gray-400 font-lora truncate">
                             {reader.email}
                           </p>
-                          <p className="text-xs text-gray-400 font-lora">
+                          <p className="text-xs text-gray-400 font-lora mt-0.5">
                             Joined {new Date(reader.created_at).toLocaleDateString('en-GB')}
                           </p>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-gray-400 font-lora text-sm hidden md:table-cell">
-                        <div className="flex items-center gap-2">
-                          <Mail size={16} className="text-gray-400" />
-                          {reader.email}
+                      <td className="py-2 sm:py-3 px-2 sm:px-4 text-center">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="inline-block px-2 sm:px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-xs sm:text-sm font-semibold">
+                            {reader.total_chapters_purchased}
+                          </span>
+                          <span className="text-xs text-green-400 font-bold font-cinzel">
+                            ₹{reader.total_spent.toFixed(2)}
+                          </span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 text-center">
-                        <span className="inline-block px-3 py-1 bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 rounded-full text-sm font-semibold">
-                          {reader.total_chapters_purchased}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-right text-green-400 font-bold font-cinzel hidden sm:table-cell">
-                        ₹{reader.total_spent.toFixed(2)}
-                      </td>
-                      <td className="py-3 px-4 text-center">
+                      <td className="py-2 sm:py-3 px-2 sm:px-4 text-center">
                         <button
                           onClick={() => toggleExpandReader(reader.id)}
-                          className="p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
+                          className="p-1.5 sm:p-2 text-primary-600 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
                           title="View details"
                         >
-                          <Eye size={18} />
+                          <Eye size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
                       </td>
                     </tr>
@@ -324,7 +314,7 @@ export function ReaderManagement() {
                     {/* Expanded Row - Purchase Details */}
                     {expandedReaderId === reader.id && (
                       <tr className="bg-gray-700">
-                        <td colSpan={5} className="py-4 px-4">
+                        <td colSpan={3} className="py-3 sm:py-4 px-2 sm:px-4">
                           <div className="space-y-3">
                             <h4 className="font-semibold text-white font-cinzel flex items-center gap-2">
                               <BookOpen size={18} />
